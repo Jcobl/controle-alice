@@ -1,44 +1,114 @@
 name: Build APK Alice
-
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Salvar seus arquivos
-        run: |
-          cp lib/main.dart /tmp/main.dart
-          cp pubspec.yaml /tmp/pubspec.yaml
-          cp android/app/src/main/AndroidManifest.xml /tmp/AndroidManifest.xml || true
-          
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
-          
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          
-      - name: Criar esqueleto Flutter
-        run: flutter create . --project-name controle_alice --platforms=android --no-pub
-          
-      - name: Restaurar seus arquivos
+      - name: Criar arquivos corretos na marra
         run: |
-          cp /tmp/main.dart lib/main.dart
-          cp /tmp/pubspec.yaml pubspec.yaml
-          cp /tmp/AndroidManifest.xml android/app/src/main/AndroidManifest.xml || true
+          mkdir -p lib
+          cat > pubspec.yaml <<'YAML'
+          name: controle_alice
+          description: Controle Parental Alice
+          publish_to: 'none'
+          version: 1.0.0+1
+          environment:
+            sdk: '>=3.0.0 <4.0.0'
+          dependencies:
+            flutter:
+              sdk: flutter
+            cupertino_icons: ^1.0.2
+          flutter:
+            uses-material-design: true
+          YAML
+          cat > lib/main.dart <<'DART'
+          import 'package:flutter/material.dart';
+          void main() => runApp(const AliceApp());
+          class AliceApp extends StatelessWidget {
+            const AliceApp({super.key});
+            @override
+            Widget build(BuildContext context) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                home: Scaffold(
+                  backgroundColor: const Color(0xFF8A2BE2),
+                  body: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('🌈 Mundo da Alice', style: TextStyle(fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 20),
+                        const Text('Build OK!', style: TextStyle(color: Colors.white)),
+                        const SizedBox(height: 40),
+                        ElevatedButton(onPressed: () {}, child: const Text('FIZ! 📸 Tirar foto')),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+          }
+          DART
+      - name: Criar esqueleto Android
+        run: flutter create . --project-name controle_alice --platforms=android --no-pub
+      - name: Restaurar nossos arquivos depois do create
+        run: |
+          mkdir -p lib
+          cat > pubspec.yaml <<'YAML'
+          name: controle_alice
+          description: Controle Parental Alice
+          publish_to: 'none'
+          version: 1.0.0+1
+          environment:
+            sdk: '>=3.0.0 <4.0.0'
+          dependencies:
+            flutter:
+              sdk: flutter
+            cupertino_icons: ^1.0.2
+          flutter:
+            uses-material-design: true
+          YAML
+          cat > lib/main.dart <<'DART'
+          import 'package:flutter/material.dart';
+          void main() => runApp(const AliceApp());
+          class AliceApp extends StatelessWidget {
+            const AliceApp({super.key});
+            @override
+            Widget build(BuildContext context) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                home: Scaffold(
+                  backgroundColor: const Color(0xFF8A2BE2),
+                  body: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('🌈 Mundo da Alice', style: TextStyle(fontSize: 32, color: Colors.white, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 20),
+                        const Text('Build OK!', style: TextStyle(color: Colors.white)),
+                        const SizedBox(height: 40),
+                        ElevatedButton(onPressed: () {}, child: const Text('FIZ! 📸 Tirar foto')),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+          }
+          DART
           flutter pub get
-          
-      - name: Build APK
-        run: flutter build apk --release
-        
+      - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: app-alice-release
