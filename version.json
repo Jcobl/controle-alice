@@ -1,6 +1,7 @@
-version": "1.0.47",
-  "versionCode": 47,
-  "notes": "Progressivo: jogos liberam com tarefas, 20 questoes por dia com parabens, loja pra comprar jogos com Robux, familia com senha",
+{
+  "version": "1.0.52",
+  "versionCode": 52,
+  "notes": "V3 verde garantido - progressivo 20 questoes, loja Robux, familia com senha, voz",
   "apk_url": "https://github.com/Jcobl/controle-alice/releases/latest",
   "obrigatoria": false
 }
