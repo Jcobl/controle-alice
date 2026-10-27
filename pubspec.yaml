@@ -1,7 +1,7 @@
 name: controle_alice
-description: Mundo da Alice
+description: Mundo da Alice com Voz
 publish_to: 'none'
-version: 1.0.72+72
+version: 1.0.75+75
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
@@ -11,5 +11,6 @@ dependencies:
   shared_preferences: ^2.3.2
   image_picker: ^1.1.2
   url_launcher: ^6.2.5
+  flutter_tts: ^4.0.2
 flutter:
   uses-material-design: true
