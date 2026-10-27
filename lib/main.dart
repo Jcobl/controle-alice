@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
@@ -511,3 +510,5 @@ class _LojinhaGameState extends State<LojinhaGame> {
         else { setState(()=> msg='Ops, tenta somar com os dedinhos! Aqui pode errar.'); widget.onGanha(); }
       }, child: const Text('COMPRAR 🛒')),
     ])));
+  }
+}
