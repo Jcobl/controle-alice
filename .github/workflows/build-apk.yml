@@ -15,28 +15,22 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - name: Recriar Android se sumiu
+      - name: Recriar Android
         run: |
-          if [ ! -d "android" ]; then
-            flutter create . --project-name controle_alice --platforms=android
-          else
-            rm -rf android
-            flutter create . --project-name controle_alice --platforms=android
-          fi
+          rm -rf android
+          flutter create . --project-name controle_alice --platforms=android
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: app-alice-release
           path: build/app/outputs/flutter-apk/app-release.apk
-      - name: Criar Release para atualizacao automatica
+      - name: Criar Release
         uses: softprops/action-gh-release@v1
         if: success()
         with:
           tag_name: v${{ github.run_number }}
           name: Mundo da Alice v${{ github.run_number }}
-          body: |
-            Progressivo: jogos desbloqueiam com tarefas, 20 questoes por dia, loja de Robux, familia com senha
           files: build/app/outputs/flutter-apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
