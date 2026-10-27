@@ -1,8 +1,7 @@
-
 name: controle_alice
-description: Mundo da Alice - Controle Parental com foto e Robux
+description: Mundo da Alice - com atualizacao online
 publish_to: 'none'
-version: 1.0.0+8
+version: 1.0.9+9
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
@@ -12,5 +11,6 @@ dependencies:
   shared_preferences: ^2.2.2
   image_picker: ^1.0.7
   url_launcher: ^6.2.2
+  http: ^1.1.0
 flutter:
   uses-material-design: true
