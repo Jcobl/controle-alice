@@ -1,13 +1,10 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_tts/flutter_tts.dart';
-import 'package:http/http.dart' as http;
 
 void main() => runApp(MundoAliceApp());
 
@@ -17,7 +14,7 @@ class MundoAliceApp extends StatelessWidget {
     return MaterialApp(
       title: 'Mundo da Alice',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.pink, fontFamily: 'Roboto'),
+      theme: ThemeData(primarySwatch: Colors.pink),
       home: TelaLoginFamilia(),
     );
   }
@@ -70,8 +67,6 @@ class _TelaLoginFamiliaState extends State<TelaLoginFamilia> {
               TextField(controller: senhaCtrl, obscureText: true, decoration: InputDecoration(labelText: "Senha (1234)")),
               SizedBox(height: 15),
               ElevatedButton(onPressed: entrar, style: ElevatedButton.styleFrom(backgroundColor: Colors.pink), child: Text("Entrar", style: TextStyle(color: Colors.white))),
-              SizedBox(height: 10),
-              Text("Alice nao precisa de senha, so escolher jogo depois", style: TextStyle(fontSize: 11, color: Colors.grey))
             ]),
           ),
         ),
@@ -93,23 +88,18 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   Map<String,bool> tarefas = {"Chegada":false,"Brincar":false,"Leitura":false,"Numeros":false};
   Map<String,String> fotosHora = {};
   Map<String,int> progresso = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
-  Map<String,int> acertosHoje = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
-  String dataHoje = "";
   bool liberadoRoblox = false;
   Map<String,bool> jogosComprados = {"Memoria":false,"Caca":false,"Turbo":false};
-  FlutterTts tts = FlutterTts();
 
   @override
   void initState(){
     super.initState();
     init();
-    checarAtualizacao();
   }
 
   Future<void> init() async {
     prefs = await SharedPreferences.getInstance();
     String hoje = DateTime.now().toIso8601String().substring(0,10);
-    dataHoje = hoje;
     setState((){
       robux = prefs!.getInt("robux") ?? 0;
       tarefas["Chegada"] = prefs!.getBool("tarefa_Chegada") ?? false;
@@ -127,7 +117,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       String dataSalva = prefs!.getString("data_hoje") ?? "";
       if(dataSalva != hoje){
         progresso = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
-        acertosHoje = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
         prefs!.setString("data_hoje", hoje);
       } else {
         progresso["Silabas"] = prefs!.getInt("prog_Silabas") ?? 0;
@@ -136,28 +125,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         progresso["Lojinha"] = prefs!.getInt("prog_Lojinha") ?? 0;
       }
     });
-    await tts.setLanguage("pt-BR");
-    await tts.setSpeechRate(0.5);
   }
 
-  Future<void> checarAtualizacao() async {
-    try {
-      var url = Uri.parse("https://raw.githubusercontent.com/Jcobl/controle-alice/main/version.json");
-      var r = await http.get(url).timeout(Duration(seconds: 5));
-      if(r.statusCode==200){
-        var j = json.decode(r.body);
-        int vServer = j["versionCode"] ?? 0;
-        if(vServer > 68){
-          if(mounted){
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("🆕 Atualizacao disponivel! Baixe no GitHub")));
-          }
-        }
-      }
-    } catch(e){}
-  }
-
-  void falar(String texto) async {
-    await tts.speak(texto);
+  void falar(String texto){
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("🔊 "+texto)));
   }
 
   Future<void> tirarFoto(String tarefa) async {
@@ -211,7 +182,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         });
         showDialog(context: context, builder: (_)=> AlertDialog(
           title: Text("🎉 TUDO COMPLETO!"),
-          content: Text("Alice completou 20/20 nos 4 jogos hoje! 【entity-Roblox¦canonical_name=Roblox】 liberado +20 Robux!"),
+          content: Text("Alice completou 20/20 nos 4 jogos hoje! Roblox liberado +20 Robux!"),
           actions: [TextButton(onPressed: ()=> Navigator.pop(context), child: Text("OK"))],
         ));
       }
@@ -269,7 +240,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         child: Column(
           children: [
             if(liberadoRoblox)
-              Card(color: Colors.green[100], child: ListTile(leading: Icon(Icons.check_circle, color: Colors.green), title: Text("Roblox Liberado Hoje! +20 Robux ganhos"), subtitle: Text("Parabens pelo esforco da Alice"))),
+              Card(color: Colors.green[100], child: ListTile(leading: Icon(Icons.check_circle, color: Colors.green), title: Text("Roblox Liberado Hoje! +20 Robux ganhos"))),
             Text("TAREFAS DO DIA - Tire foto para liberar jogos", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             SizedBox(height: 8),
             Row(children: [
@@ -288,7 +259,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             _cardJogo("Blocos", "Contando Blocos", "Leitura libera", Colors.purple, progresso["Blocos"]??0),
             _cardJogo("Lojinha", "Lojinha da Alice", "Numeros libera", Colors.green, progresso["Lojinha"]??0),
             Divider(),
-            Text("LOJINHA - Compre jogos extras com Robux", style: TextStyle(fontWeight: FontWeight.bold)),
+            Text("LOJINHA - Compre jogos extras", style: TextStyle(fontWeight: FontWeight.bold)),
             _cardLoja("Memoria", "Jogo da Memoria", 50),
             _cardLoja("Caca", "Caca Palavras", 70),
             _cardLoja("Turbo", "Turbo Matematica", 100),
@@ -314,7 +285,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           Text(nome, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
           Text(libera, style: TextStyle(fontSize: 10)),
           if(fotosHora[nome]!=null && fotosHora[nome]!="") Text(fotosHora[nome]!, style: TextStyle(fontSize: 9, color: Colors.blue)),
-          ElevatedButton(onPressed: ()=> tirarFoto(nome), child: Text(feito? "Refazer foto" : "Tirar foto")),
+          ElevatedButton(onPressed: ()=> tirarFoto(nome), child: Text(feito? "Refazer" : "Foto")),
         ]),
       ),
     );
@@ -327,7 +298,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         leading: CircleAvatar(backgroundColor: liberado? cor : Colors.grey, child: Icon(Icons.play_arrow, color: Colors.white)),
         title: Text(titulo+" ("+prog.toString()+"/20)"),
         subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(liberado? desc : "Bloqueado - faca tarefa"),
+          Text(liberado? desc : "Bloqueado"),
           LinearProgressIndicator(value: prog/20, backgroundColor: Colors.grey[300], color: cor),
         ]),
         trailing: IconButton(icon: Icon(Icons.volume_up), onPressed: ()=> falar(titulo)),
@@ -366,12 +337,6 @@ class _JogoSilabasState extends State<JogoSilabas> {
     {"palavra":"BOLA","silaba":"BO","opcoes":["CA","BO","LA"]},
     {"palavra":"AGUA","silaba":"A","opcoes":["A","E","O"]},
     {"palavra":"GATO","silaba":"GA","opcoes":["GA","TO","MI"]},
-    {"palavra":"PATO","silaba":"PA","opcoes":["PA","TI","GO"]},
-    {"palavra":"MALA","silaba":"MA","opcoes":["MA","LA","TA"]},
-    {"palavra":"FADA","silaba":"FA","opcoes":["FA","DA","BA"]},
-    {"palavra":"LUA","silaba":"LU","opcoes":["LU","A","BO"]},
-    {"palavra":"SOL","silaba":"SOL","opcoes":["SOL","LUA","MAR"]},
-    {"palavra":"MAR","silaba":"MAR","opcoes":["MAR","SOL","PAO"]},
   ];
   int idx = 0;
   Random rnd = Random();
@@ -392,11 +357,9 @@ class _JogoSilabasState extends State<JogoSilabas> {
     if(r1==r2){
       widget.onAcerto();
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
-      setState((){
-        idx = rnd.nextInt(perguntas.length);
-      });
+      setState(()=> idx = rnd.nextInt(perguntas.length));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Tente de novo! A silaba e "+correta), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Tente de novo! E "+correta), backgroundColor: Colors.red));
     }
   }
 
@@ -404,7 +367,7 @@ class _JogoSilabasState extends State<JogoSilabas> {
   Widget build(BuildContext context){
     var p = perguntas[idx];
     return Scaffold(
-      appBar: AppBar(title: Text("Silabas Magicas "+widget.progresso.toString()+"/20"), backgroundColor: Colors.orange),
+      appBar: AppBar(title: Text("Silabas "+widget.progresso.toString()+"/20"), backgroundColor: Colors.orange),
       body: Column(children: [
         LinearProgressIndicator(value: widget.progresso/20),
         GestureDetector(
@@ -436,8 +399,6 @@ class _JogoPalavraState extends State<JogoPalavra> {
   List<Map<String,String>> palavras = [
     {"dica":"Animal que late","palavra":"CACHORRO"},
     {"dica":"Fruta amarela","palavra":"BANANA"},
-    {"dica":"Cor do ceu","palavra":"AZUL"},
-    {"dica":"Voce mora aqui","palavra":"CASA"},
   ];
   int idx = 0;
   TextEditingController ctrl = TextEditingController();
@@ -459,7 +420,7 @@ class _JogoPalavraState extends State<JogoPalavra> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: Text("Palavra Escondida "+widget.progresso.toString()+"/20"), backgroundColor: Colors.blue),
+      appBar: AppBar(title: Text("Palavra "+widget.progresso.toString()+"/20"), backgroundColor: Colors.blue),
       body: Column(children: [
         LinearProgressIndicator(value: widget.progresso/20),
         GestureDetector(
@@ -472,7 +433,6 @@ class _JogoPalavraState extends State<JogoPalavra> {
         ),
         SizedBox(height: 20),
         Padding(padding: EdgeInsets.all(12), child: TextField(controller: ctrl, decoration: InputDecoration(labelText: "Digite a palavra", border: OutlineInputBorder()), textCapitalization: TextCapitalization.characters)),
-        SizedBox(height: 10),
         ElevatedButton(onPressed: verificar, child: Text("Verificar")),
       ]),
     );
@@ -512,14 +472,14 @@ class _JogoBlocosState extends State<JogoBlocos> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
       gerar();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errou! Conte de novo"), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errou!"), backgroundColor: Colors.red));
     }
   }
 
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: Text("Contando Blocos "+widget.progresso.toString()+"/20"), backgroundColor: Colors.purple),
+      appBar: AppBar(title: Text("Blocos "+widget.progresso.toString()+"/20"), backgroundColor: Colors.purple),
       body: Column(children: [
         LinearProgressIndicator(value: widget.progresso/20),
         GestureDetector(
@@ -560,7 +520,6 @@ class _JogoLojinhaState extends State<JogoLojinha> {
   Random rnd = Random();
   int preco = 5;
   int pago = 0;
-  List<int> notas = [1,2,5];
 
   @override
   void initState(){
@@ -575,9 +534,7 @@ class _JogoLojinhaState extends State<JogoLojinha> {
     });
   }
 
-  void addNota(int v){
-    setState(()=> pago+=v);
-  }
+  void addNota(int v){ setState(()=> pago+=v); }
 
   void verificar(){
     if(pago==preco){
@@ -585,7 +542,7 @@ class _JogoLojinhaState extends State<JogoLojinha> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
       gerar();
     } else if(pago>preco){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Deu troco a mais! Tente de novo"), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Deu a mais!"), backgroundColor: Colors.red));
       setState(()=> pago=0);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Falta dinheiro!"), backgroundColor: Colors.orange));
@@ -599,7 +556,7 @@ class _JogoLojinhaState extends State<JogoLojinha> {
       body: Column(children: [
         LinearProgressIndicator(value: widget.progresso/20),
         GestureDetector(
-          onTap: ()=> widget.falar("O preco e "+preco.toString()+" reais, quanto vai pagar?"),
+          onTap: ()=> widget.falar("O preco e "+preco.toString()),
           child: Container(color: Colors.yellow[200], width: double.infinity, padding: EdgeInsets.all(16), child: Row(children: [
             Icon(Icons.volume_up),
             SizedBox(width: 8),
@@ -608,11 +565,9 @@ class _JogoLojinhaState extends State<JogoLojinha> {
         ),
         SizedBox(height: 20),
         Text("Pago: R\$ "+pago.toString(), style: TextStyle(fontSize: 24)),
-        SizedBox(height: 10),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: notas.map((n)=> ElevatedButton(onPressed: ()=> addNota(n), child: Text("R\$ "+n.toString()))).toList()),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [1,2,5].map((n)=> ElevatedButton(onPressed: ()=> addNota(n), child: Text("R\$ "+n.toString()))).toList()),
         SizedBox(height: 20),
         ElevatedButton(onPressed: verificar, child: Text("Pagar")),
-        ElevatedButton(onPressed: ()=> setState(()=> pago=0), child: Text("Limpar")),
       ]),
     );
   }
