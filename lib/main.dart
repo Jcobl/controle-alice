@@ -570,3 +570,5 @@ class _JogoLojinhaState extends State<JogoLojinha> {
         ElevatedButton(onPressed: verificar, child: Text("Pagar")),
       ]),
     );
+  }
+}
