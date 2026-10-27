@@ -1,7 +1,7 @@
 {
-  "version": "1.0.9",
-  "versionCode": 9,
-  "notes": "Versao web completa com jogos",
-  "apk_url": "https://github.com/Jcobl/controle-alice/releases/latest/download/app-release.apk",
+  "version": "1.0.47",
+  "versionCode": 47,
+  "notes": "Progressivo: jogos liberam com tarefas, 20 questoes por dia com parabens, loja pra comprar jogos com Robux, familia com senha",
+  "apk_url": "https://github.com/Jcobl/controle-alice/releases/latest",
   "obrigatoria": false
 }
