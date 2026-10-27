@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
+
 class VozDaAlice {
   static final FlutterTts _tts = FlutterTts();
   static bool _iniciado = false;
@@ -22,10 +23,11 @@ class VozDaAlice {
   static Future<void> falar(String texto) async {
     await _init();
     await _tts.stop();
-    String limpo = texto.replaceAll(RegExp(r'[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]+', unicode: true), '').replaceAll('💎',' Robux ').replaceAll('⭐',' estrela ').replaceAll('🧱',' bloco ').replaceAll('🏠',' casa ');
+    String limpo = texto.replaceAll('💎',' Robux ').replaceAll('⭐',' estrela ').replaceAll('🧱',' bloco ').replaceAll('🏠',' casa ').replaceAll('🔤','').replaceAll('🔍','').replaceAll('🟦','').replaceAll('🏪','');
     await _tts.speak(limpo);
   }
 }
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -320,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListView(
       padding: EdgeInsets.all(16),
       children:[
-        Card(color: Colors.purple.shade50, child: ListTile(leading: Text("⭐", style: TextStyle(fontSize:28)), title: Text("$estrelas estrelas | $robux 💎 Robux"), trailing: IconButton(icon: Text("🔊"), onPressed: ()=> VozDaAlice.falar("Você tem $estrelas estrelas e $robux Robux")))),
+        Card(color: Colors.purple.shade50, child: ListTile(leading: Text("⭐", style: TextStyle(fontSize:28)), title: Text("$estrelas estrelas | $robux 💎 Robux"), trailing: IconButton(icon: Icon(Icons.volume_up), onPressed: ()=> VozDaAlice.falar("Você tem $estrelas estrelas e $robux Robux")))),
         ...tasks.map((task){
           bool bloqueado = false;
           int idx = tasks.indexOf(task);
@@ -403,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListView(
       padding: EdgeInsets.all(16),
       children:[
-        Card(color: Colors.amber.shade100, child: ListTile(leading: Text("💎", style: TextStyle(fontSize:30)), title: Text("Seus Robux: $robux"), subtitle: Text("Compre mais joguinhos! Sempre soma!"), trailing: IconButton(icon: Text("🔊"), onPressed: ()=> VozDaAlice.falar("Você tem $robux Robux para comprar jogos")))),
+        Card(color: Colors.amber.shade100, child: ListTile(leading: Text("💎", style: TextStyle(fontSize:30)), title: Text("Seus Robux: $robux"), subtitle: Text("Compre mais joguinhos! Sempre soma!"), trailing: IconButton(icon: Icon(Icons.volume_up), onPressed: ()=> VozDaAlice.falar("Você tem $robux Robux para comprar jogos")))),
         ...loja.map((item){
           return Card(
             child: ListTile(
@@ -546,7 +548,7 @@ class _SilabasGameState extends State<SilabasGame> {
   String _semAcento(String s){ return s.replaceAll('Á','A').replaceAll('Â','A').replaceAll('Ã','A').replaceAll('É','E').replaceAll('Ê','E').replaceAll('Í','I').replaceAll('Ó','O').replaceAll('Ô','O').replaceAll('Ú','U').replaceAll('Ç','C'); }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('🔤 Sílabas Mágicas'), actions: [IconButton(icon: Text('🔊', style: TextStyle(fontSize:24)), onPressed: ()=> VozDaAlice.falar('Sílabas mágicas. Forme a palavra ${p['exibe']} . Dica ${p['dica']}'))]), body: Padding(padding: EdgeInsets.all(20), child: Column(children:[
+    return Scaffold(appBar: AppBar(title: Text('🔤 Sílabas Mágicas'), actions: [IconButton(icon: Icon(Icons.volume_up), onPressed: ()=> VozDaAlice.falar('Sílabas mágicas. Forme a palavra ${p['exibe']} . Dica ${p['dica']}'))]), body: Padding(padding: EdgeInsets.all(20), child: Column(children:[
       InkWell(onTap: ()=> VozDaAlice.falar('Forme a palavra ${p['exibe']}'), child: Text('Forme: ${p['exibe']}', style: TextStyle(fontSize:26, fontWeight: FontWeight.bold))),
       Text(p['dica']!, style: TextStyle(color: Colors.grey)), SizedBox(height:12),
       Wrap(spacing:12, children:[
@@ -578,7 +580,7 @@ class _PalavraGameState extends State<PalavraGame> {
   Widget build(BuildContext context) {
     String palavra = palavras[idx % palavras.length];
     String escondida = palavra[0] + ' _ ' * (palavra.length-2) + palavra[palavra.length-1];
-    return Scaffold(appBar: AppBar(title: Text('🔍 Palavra Escondida'), actions:[IconButton(icon: Text('🔊'), onPressed: ()=> VozDaAlice.falar('Palavra escondida. Dica começa com ${palavra[0]} e termina com ${palavra[palavra.length-1]}'))]), body: Padding(padding: EdgeInsets.all(20), child: Column(children:[
+    return Scaffold(appBar: AppBar(title: Text('🔍 Palavra Escondida'), actions:[IconButton(icon: Icon(Icons.volume_up), onPressed: ()=> VozDaAlice.falar('Palavra escondida. Dica começa com ${palavra[0]} e termina com ${palavra[palavra.length-1]}'))]), body: Padding(padding: EdgeInsets.all(20), child: Column(children:[
       Text(escondida, style: TextStyle(fontSize:32, letterSpacing:8)), SizedBox(height:12),
       TextField(decoration: InputDecoration(labelText: 'Qual a palavra?', border: OutlineInputBorder()), onChanged: (v)=> tentativa=v.toUpperCase(), onTap: ()=> VozDaAlice.falar('Digite a palavra')),
       SizedBox(height:12), Text(msg), SizedBox(height:12),
@@ -605,7 +607,7 @@ class _BlocosGameState extends State<BlocosGame> {
   void _nova(){ setState((){ qtd = rand.nextInt(8)+2; resp=0; msg='Conte os blocos 🟦'; cores = List.generate(qtd, (_) => Colors.primaries[rand.nextInt(Colors.primaries.length)]); }); VozDaAlice.falar('Conte os blocos. Quantos blocos tem?');}
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('🟦 Contando Blocos'), actions: [IconButton(icon: Text('🔊', style: TextStyle(fontSize:24)), onPressed: ()=> VozDaAlice.falar('Contando blocos. Quantos blocos? $qtd blocos na tela.'))]), body: Padding(padding: EdgeInsets.all(16), child: Column(children:[
+    return Scaffold(appBar: AppBar(title: Text('🟦 Contando Blocos'), actions: [IconButton(icon: Icon(Icons.volume_up), onPressed: ()=> VozDaAlice.falar('Contando blocos. Quantos blocos? $qtd blocos na tela.'))]), body: Padding(padding: EdgeInsets.all(16), child: Column(children:[
       InkWell(onTap: ()=> VozDaAlice.falar('Quantos blocos? $qtd blocos'), child: Text('Quantos blocos?', style: TextStyle(fontSize:20, fontWeight: FontWeight.bold))),
       SizedBox(height:12),
       Wrap(spacing:8, runSpacing:8, children: List.generate(qtd, (i)=> Container(width:50, height:50, decoration: BoxDecoration(color: cores.isNotEmpty ? cores[i] : Colors.blue, borderRadius: BorderRadius.circular(8), border: Border.all(width:2)), child: Center(child: Text('🧱'))))),
@@ -634,7 +636,7 @@ class _LojinhaGameState extends State<LojinhaGame> {
   void _nova(){ setState((){a=rand.nextInt(5)+1; b=rand.nextInt(5)+1; resp=0; msg='';}); VozDaAlice.falar('Você tem $a Robux, ganhou mais $b, quanto tem agora?');}
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('🏪 Lojinha da Aventura'), actions: [IconButton(icon: Text('🔊', style: TextStyle(fontSize:24)), onPressed: ()=> VozDaAlice.falar('Lojinha da aventura. Você tem $a Robux, ganhou mais $b Robux, quanto tem agora? $a mais $b é quanto?'))]), body: Padding(padding: EdgeInsets.all(20), child: Column(children:[
+    return Scaffold(appBar: AppBar(title: Text('🏪 Lojinha da Aventura'), actions: [IconButton(icon: Icon(Icons.volume_up), onPressed: ()=> VozDaAlice.falar('Lojinha da aventura. Você tem $a Robux, ganhou mais $b Robux, quanto tem agora? $a mais $b é quanto?'))]), body: Padding(padding: EdgeInsets.all(20), child: Column(children:[
       InkWell(onTap: ()=> VozDaAlice.falar('Você tem $a Robux, ganhou mais $b Robux, quanto tem agora? $a mais $b é igual a quanto?'), child: Container(padding: EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.yellow.shade100, borderRadius: BorderRadius.circular(16)), child: Column(children:[
         Text('Você tem $a 💎 Robux', style: TextStyle(fontSize:20)), Text('Ganhou mais $b 💎', style: TextStyle(fontSize:20)), SizedBox(height:12),
         Text('Quanto tem agora?', style: TextStyle(fontWeight: FontWeight.bold)), SizedBox(height:8),
@@ -700,3 +702,4 @@ class _TurboGameState extends State<TurboGame> {
       ElevatedButton(onPressed: (){ widget.onGanha(); setState(()=> acertos++); if(acertos>=20) Navigator.pop(context); }, child: Text('Ganhar ponto $acertos/20')),
     ])));
   }
+}
