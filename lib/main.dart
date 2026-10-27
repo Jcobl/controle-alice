@@ -6,24 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
 
 class VozDaAlice {
-  static final FlutterTts _tts = FlutterTts();
-  static bool _ok = false;
-  static Future<void> init() async {
-    if(_ok) return;
-    await _tts.setLanguage('pt-BR');
-    await _tts.setSpeechRate(0.45);
-    await _tts.setVolume(1.0);
-    _ok = true;
-  }
   static Future<void> falar(String t) async {
-    await init();
-    await _tts.stop();
-    String limpo = t.replaceAll('💎',' Robux ').replaceAll('⭐',' estrela ');
-    await _tts.speak(limpo);
+    debugPrint('VOZ: $t');
   }
 }
 
@@ -428,12 +415,12 @@ class _HomeScreenState extends State<HomeScreen>{
     return ListView(
       padding: const EdgeInsets.all(16),
       children:[
-        Card(color: Colors.blue.shade50, child: ListTile(leading: const Icon(Icons.family_restroom), title: Text('Olá, ${logado!.nome}!'), subtitle: const Text('Modo Família Protegido 🔒'), trailing: IconButton(icon: const Icon(Icons.logout), onPressed: (){ setState(()=> familiaBloqueada=true); }))),
+        Card(color: Colors.blue.shade50, child: ListTile(leading: const Icon(Icons.family_restroom), title: Text('Olá, ${logado!.nome}!'), subtitle: const Text('Modo Família Protegido 🔒'), trailing: IconButton(icon: const Icon(Icons.logout), onPressed: (){ setState((){ familiaBloqueada=true); }))),
         Card(child: ListTile(title: Text('⭐ $estrelas estrelas'), subtitle: Text('💎 $robux Robux'))),
         Card(child: Column(children: tarefas.map((t)=> ListTile(leading: Text(t.emoji), title: Text(t.titulo), subtitle: t.fotoPath!=null? Text('Foto ok • ${t.horaFeita}') : const Text('Sem foto'), trailing: t.feito? const Icon(Icons.check_circle, color: Colors.green) : const Icon(Icons.pending))).toList())),
         Card(child: ListTile(title: const Text('Gerenciar Família'), subtitle: const Text('Adicionar vó, tio, etc'), onTap: _showAddFamilia)),
         ...familia.map((f)=> Card(child: ListTile(leading: const Icon(Icons.person), title: Text(f.nome)))),
-        Card(color: Colors.red.shade50, child: ListTile(title: const Text('Sair do Modo Família'), trailing: const Icon(Icons.lock), onTap: (){ setState(()=> familiaBloqueada=true); })),
+        Card(color: Colors.red.shade50, child: ListTile(title: const Text('Sair do Modo Família'), trailing: const Icon(Icons.lock), onTap: (){ setState((){ familiaBloqueada=true); })),
       ],
     );
   }
@@ -463,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen>{
           SizedBox(width: double.infinity, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical:14)), onPressed: (){
             var achou=familia.where((f)=> f.nome==nomeSel && f.senha==senha).toList();
             if(achou.isNotEmpty){
-              setState(()=> {logado=achou.first, familiaBloqueada=false});
+              setState((){ logado=achou.first; familiaBloqueada=false; });
               VozDaAlice.falar('Olá ${logado!.nome}, modo família liberado');
             } else {
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nome ou senha errada!')));
