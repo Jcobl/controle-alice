@@ -1,4 +1,3 @@
-
 name: Build APK Alice
 on:
   push:
@@ -27,3 +26,13 @@ jobs:
         with:
           name: app-alice-release
           path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Criar Release automatico
+        uses: softprops/action-gh-release@v1
+        if: success()
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Mundo da Alice v${{ github.run_number }}
+          files: build/app/outputs/flutter-apk/app-release.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
