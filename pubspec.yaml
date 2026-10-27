@@ -1,7 +1,7 @@
 name: controle_alice
-description: Mundo da Alice - progressivo com loja e familia com senha
+description: Mundo da Alice - progressivo v3 verde garantido
 publish_to: 'none'
-version: 1.0.47+47
+version: 1.0.52+52
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
