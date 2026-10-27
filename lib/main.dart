@@ -1,516 +1,619 @@
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:http/http.dart' as http;
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(const AliceApp());
-}
+void main() => runApp(MundoAliceApp());
 
-class Task {
-  final String id;
-  final String titulo;
-  final String horario;
-  final String emoji;
-  final int mundo;
-  bool feito;
-  String? fotoPath;
-  String? horaFeita;
-  Task({required this.id, required this.titulo, required this.horario, required this.emoji, required this.mundo, this.feito=false, this.fotoPath, this.horaFeita});
-  Map<String,dynamic> toJson() => {'id':id,'feito':feito,'fotoPath':fotoPath,'horaFeita':horaFeita};
-}
-
-class AliceApp extends StatelessWidget {
-  const AliceApp({super.key});
+class MundoAliceApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Mundo da Alice',
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: const Color(0xFF8A2BE2), fontFamily: 'Roboto'),
-      home: const HomeScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.pink, fontFamily: 'Roboto'),
+      home: TelaLoginFamilia(),
     );
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class TelaLoginFamilia extends StatefulWidget {
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  _TelaLoginFamiliaState createState() => _TelaLoginFamiliaState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  int tab = 0;
-  int estrelas = 0;
-  int robux = 0;
-  int robloxSegundos = 40*60;
-  Timer? timerRoblox;
-  List<Task> tarefas = [
-    Task(id:'t1', titulo:'Chegada + Lanche', horario:'16:00-16:30', emoji:'🏠', mundo:1),
-    Task(id:'t2', titulo:'Brincar Livre', horario:'16:30-16:50', emoji:'🧸', mundo:1),
-    Task(id:'t3', titulo:'Leitura Divertida (ler junto, sem punir erro)', horario:'17:00-17:25', emoji:'📚', mundo:3),
-    Task(id:'t4', titulo:'Números Brincando com objetos', horario:'17:25-17:45', emoji:'🔢', mundo:4),
-    Task(id:'t5', titulo:'Água / Pausa', horario:'17:45-18:05', emoji:'💧', mundo:2),
-    Task(id:'t6', titulo:'Jantar', horario:'18:05-18:30', emoji:'🍝', mundo:2),
-    Task(id:'t7', titulo:'Banho / Dentes', horario:'18:30-19:00', emoji:'🛁', mundo:2),
-    Task(id:'t8', titulo:'História Calma', horario:'19:00-19:30', emoji:'🌙', mundo:3),
+class _TelaLoginFamiliaState extends State<TelaLoginFamilia> {
+  final List<Map<String,String>> familia = [
+    {"nome":"Ana Beatriz","senha":"1234"},
+    {"nome":"Matheus","senha":"1234"},
+    {"nome":"Jean","senha":"1234"},
+    {"nome":"Vó","senha":"1234"},
   ];
-  final picker = ImagePicker();
-  final familia = [
-    {'nome':'Mãe Ana Beatriz','tel':'5521964847749'},
-    {'nome':'Pai Matheus','tel':'5521997963651'},
-    {'nome':'Padrasto Jean','tel':'5521970774736'},
-  ];
+  String nomeSelecionado = "Ana Beatriz";
+  TextEditingController senhaCtrl = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    _load();
-    timerRoblox = Timer.periodic(const Duration(seconds:1), (t){
-      if(robloxSegundos>0){ setState(()=> robloxSegundos--); }
-    });
-  }
-
-  @override
-  void dispose(){ timerRoblox?.cancel(); super.dispose(); }
-
-  Future<void> _load() async {
-    final p = await SharedPreferences.getInstance();
-    setState((){
-      estrelas = p.getInt('estrelas') ?? 0;
-      robux = p.getInt('robux') ?? 0;
-      robloxSegundos = p.getInt('robloxSeg') ?? 40*60;
-      final jsonStr = p.getString('tarefas');
-      if(jsonStr!=null){
-        final map = jsonDecode(jsonStr) as Map<String,dynamic>;
-        for(var t in tarefas){
-          if(map.containsKey(t.id)){
-            t.feito = map[t.id]['feito'] ?? false;
-            t.fotoPath = map[t.id]['fotoPath'];
-            t.horaFeita = map[t.id]['horaFeita'];
-          }
-        }
-      }
-    });
-  }
-
-  Future<void> _save() async {
-    final p = await SharedPreferences.getInstance();
-    final m = {for(var t in tarefas) t.id: t.toJson()};
-    await p.setString('tarefas', jsonEncode(m));
-    await p.setInt('estrelas', estrelas);
-    await p.setInt('robux', robux);
-    await p.setInt('robloxSeg', robloxSegundos);
-  }
-
-  Future<void> _tirarFoto(Task t) async {
-    try{
-      final XFile? file = await picker.pickImage(source: ImageSource.camera, imageQuality: 65);
-      if(file==null) return;
-      final agora = DateTime.now();
-      final hora = "${agora.hour.toString().padLeft(2,'0')}:${agora.minute.toString().padLeft(2,'0')}";
-      setState((){
-        t.feito = true;
-        t.fotoPath = file.path;
-        t.horaFeita = hora;
-        estrelas += 1;
-        robux += 5;
-      });
-      await _save();
-      if(!mounted) return;
-      showDialog(context: context, builder: (_)=> AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('🎉 ESTRELA GANHA!', textAlign: TextAlign.center),
-        content: Column(mainAxisSize: MainAxisSize.min, children:[
-          if(t.fotoPath!=null) ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.file(File(t.fotoPath!), height: 140)),
-          const SizedBox(height:12),
-          Text('Você fez ${t.titulo} às $hora', style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-          const SizedBox(height:8),
-          const Text('Aqui pode errar. Toda tentativa vale estrela. 🌟', textAlign: TextAlign.center),
-          const SizedBox(height:8),
-          Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(8)), child: const Text('+1 ⭐  +5 💎 Robux da Coragem')),
-        ]),
-        actions:[Center(child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8A2BE2), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal:32, vertical:12)), onPressed: ()=> Navigator.pop(context), child: const Text('CONTINUAR 🚀')))]
-      ));
-    }catch(e){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erro câmera: $e')));
+  void entrar() async {
+    var fam = familia.firstWhere((f)=> f["nome"]==nomeSelecionado);
+    if(senhaCtrl.text == fam["senha"]){
+      SharedPreferences p = await SharedPreferences.getInstance();
+      await p.setString("usuario_logado", nomeSelecionado);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> TelaPrincipal(usuario: nomeSelecionado)));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Senha incorreta! Use 1234")));
     }
   }
 
-  Future<void> _whatsapp(String tel, String msg) async {
-    final uri = Uri.parse('https://wa.me/$tel?text=${Uri.encodeComponent(msg)}');
-    if(await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-  }
-
-  String formatTempo(int s){ final m = s~/60; final seg = s%60; return "${m.toString().padLeft(2,'0')}:${seg.toString().padLeft(2,'0')}"; }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F3FF),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF8A2BE2),
-        foregroundColor: Colors.white,
-        centerTitle: false,
-        title: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-          const Text('🌈 Mundo da Alice', style: TextStyle(fontWeight: FontWeight.bold, fontSize:20)),
-          Text('⭐ $estrelas estrelas  |  💎 $robux Robux da Coragem', style: const TextStyle(fontSize:12)),
-          const Text('Aqui pode errar. Toda tentativa vale estrela.', style: TextStyle(fontSize:10, fontStyle: FontStyle.italic)),
-        ]),
-        actions:[
-          IconButton(icon: const Icon(Icons.refresh), onPressed: () async {
-            final p = await SharedPreferences.getInstance(); await p.clear();
-            setState((){
-              for(var t in tarefas){t.feito=false; t.fotoPath=null; t.horaFeita=null;}
-              estrelas=0; robux=0; robloxSegundos=40*60;
-            });
-          }),
-          const SizedBox(width:8),
-        ]
-      ),
-      body: tab==0 ? _modoCrianca() : tab==1 ? _modoJogos() : _modoFamilia(),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: tab,
-        onDestinationSelected: (i)=> setState(()=> tab=i),
-        backgroundColor: Colors.white,
-        destinations: const [
-          NavigationDestination(icon: Text('👧', style: TextStyle(fontSize:24)), label: 'Rotina'),
-          NavigationDestination(icon: Text('🎮', style: TextStyle(fontSize:24)), label: 'Jogos'),
-          NavigationDestination(icon: Text('👨‍👩‍👧', style: TextStyle(fontSize:24)), label: 'Família'),
-        ],
-      ),
-    );
-  }
-
-  Widget _modoCrianca(){
-    final mundos = [
-      {'n':1,'nome':'Mundo 1 - Chegada','emoji':'🏠','cor':const Color(0xFFFFE082)},
-      {'n':2,'nome':'Mundo 2 - Higiene e Água','emoji':'💧','cor':const Color(0xFF80DEEA)},
-      {'n':3,'nome':'Mundo 3 - Leitura','emoji':'📚','cor':const Color(0xFFA5D6A7)},
-      {'n':4,'nome':'Mundo 4 - Números','emoji':'🔢','cor':const Color(0xFFFFAB91)},
-      {'n':5,'nome':'Mundo 5 - Jantar e História','emoji':'🌙','cor':const Color(0xFFCE93D8)},
-    ];
-    return ListView(
-      padding: const EdgeInsets.all(12),
-      children:[
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: const Color(0xFF8A2BE2), width:2)),
-          child: Column(children:[
-            const Text('📅 Rotina Pós-Escola - 16h às 19h30', style: TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(height:4),
-            Text('Acorda 5:30 | Volta 16:00 | Dormir 19:30 - ${tarefas.where((t)=>t.feito).length}/${tarefas.length} feitas hoje', style: const TextStyle(fontSize:12)),
-            const SizedBox(height:8),
-            LinearProgressIndicator(value: tarefas.where((t)=>t.feito).isEmpty ? 0 : tarefas.where((t)=>t.feito).length / tarefas.length, backgroundColor: Colors.grey.shade300, color: const Color(0xFF8A2BE2), minHeight: 10, borderRadius: BorderRadius.circular(10)),
-          ]),
-        ),
-        const SizedBox(height:12),
-        ...mundos.map((m){
-          final n = m['n'] as int;
-          final tarefasMundo = tarefas.where((t)=> t.mundo==n).toList();
-          return Card(
-            elevation: 2,
-            color: (m['cor'] as Color),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: ExpansionTile(
-              initiallyExpanded: true,
-              leading: Text(m['emoji'] as String, style: const TextStyle(fontSize:30)),
-              title: Text(m['nome'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize:14)),
-              subtitle: Text('${tarefasMundo.where((t)=>t.feito).length}/${tarefasMundo.length} ✅ LIBERADO - Todas as funções ativas', style: const TextStyle(fontSize:11, fontWeight: FontWeight.bold, color: Colors.black87)),
-              children: tarefasMundo.map((t)=> _cardTarefa(t)).toList(),
-            ),
-          );
-        }),
-        const SizedBox(height:12),
-        _cardRoblox(),
-        const SizedBox(height:12),
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-          child: const Text('🔔 Lembretes Mágicos ativos! Esse app é launcher transparente. A Alice sempre vê que está em modo tarefa. Localização com notificação permanente (LGPD <12 anos).', style: TextStyle(fontSize:10, color: Colors.grey)),
-        ),
-      ],
-    );
-  }
-
-  Widget _cardTarefa(Task t){
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal:12, vertical:6),
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-      child: Row(
-        children:[
-          Text(t.emoji, style: const TextStyle(fontSize:32)),
-          const SizedBox(width:10),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-            Text(t.titulo, style: TextStyle(fontWeight: FontWeight.bold, decoration: t.feito? TextDecoration.lineThrough : null)),
-            Text('${t.horario} ${t.horaFeita!=null ? "| Feito às ${t.horaFeita} 📸" : ""}', style: const TextStyle(fontSize:11)),
-            if(t.fotoPath!=null) Padding(padding: const EdgeInsets.only(top:6), child: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.file(File(t.fotoPath!), height: 90, width: 120, fit: BoxFit.cover))),
-          ])),
-          const SizedBox(width:8),
-          t.feito 
-            ? Column(children:[const Icon(Icons.star, color: Colors.amber, size:36), Text('${t.horaFeita}', style: const TextStyle(fontSize:10, fontWeight: FontWeight.bold))])
-            : ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8A2BE2), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), padding: const EdgeInsets.symmetric(horizontal:16, vertical:12)),
-              onPressed: ()=> _tirarFoto(t),
-              child: const Text('FIZ! 📸\nTirar foto', textAlign: TextAlign.center, style: TextStyle(fontSize:12, fontWeight: FontWeight.bold)),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _cardRoblox(){
-    final podeJogar = true;
-    return Card(
-      color: const Color(0xFFFFF59D),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Colors.amber, width:2)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(children:[
-          const Text('🎮 Roblox Liberado! (Tudo liberado)', style: TextStyle(fontSize:20, fontWeight: FontWeight.bold)),
-          const SizedBox(height:6),
-          const Text('Tempo recomendado: 40 min até 18:30 máximo para proteger o sono. Dorme 19:30.', textAlign: TextAlign.center, style: TextStyle(fontSize:12)),
-          const SizedBox(height:12),
-          Text(formatTempo(robloxSegundos), style: const TextStyle(fontSize:48, fontWeight: FontWeight.bold, letterSpacing: 2)),
-          Text(podeJogar ? 'Pode jogar!' : 'Acabou o tempo hoje!', style: TextStyle(fontSize:14, color: podeJogar? Colors.green : Colors.red, fontWeight: FontWeight.bold)),
-          const SizedBox(height:12),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children:[
-            ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white), onPressed: () async {
-              final uri = Uri.parse('https://www.roblox.com');
-              if(await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
-            }, child: const Text('JOGAR ROBLOX 🎮')),
-            const SizedBox(width:12),
-            ElevatedButton(onPressed: ()=> _whatsapp(familia[2]['tel']!, '🎉 AVISEI! Alice terminou! ⭐ $estrelas | 💎 $robux | Fotos: ${tarefas.where((t)=>t.fotoPath!=null).length}'), child: const Text('AVISEI! 🎉')),
-          ]),
-        ]),
-      ),
-    );
-  }
-
-  Widget _modoJogos(){
-    final jogos = [
-      {'emoji':'🔤','nome':'Sílabas Mágicas','desc':'Junte as sílabas e forme palavras - tema Roblox','cor':const Color(0xFFB39DDB)},
-      {'emoji':'🔍','nome':'Palavra Escondida','desc':'Ache a palavra secreta','cor':const Color(0xFF81C784)},
-      {'emoji':'🟦','nome':'Contando Blocos','desc':'Conte os blocos como no Roblox','cor':const Color(0xFFFFCC80)},
-      {'emoji':'🏪','nome':'Lojinha da Aventura','desc':'Some e diminua Robux','cor':const Color(0xFF90CAF9)},
-    ];
-    return GridView.count(
-      padding: const EdgeInsets.all(12),
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      children: jogos.map((j){
-        return InkWell(
-          onTap: (){
-            if(j['nome']=='Sílabas Mágicas') Navigator.push(context, MaterialPageRoute(builder: (_)=> SilabasGame(onGanha:(){ setState((){estrelas++; robux+=3;}); _save();})));
-            if(j['nome']=='Palavra Escondida') Navigator.push(context, MaterialPageRoute(builder: (_)=> PalavraGame(onGanha:(){ setState((){estrelas++; robux+=3;}); _save();})));
-            if(j['nome']=='Contando Blocos') Navigator.push(context, MaterialPageRoute(builder: (_)=> BlocosGame(onGanha:(){ setState((){estrelas++; robux+=3;}); _save();})));
-            if(j['nome']=='Lojinha da Aventura') Navigator.push(context, MaterialPageRoute(builder: (_)=> LojinhaGame(onGanha:(){ setState((){estrelas++; robux+=3;}); _save();})));
-          },
-          child: Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(color: j['cor'] as Color, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white, width:2), boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-            child: Column(mainAxisAlignment: MainAxisAlignment.center, children:[
-              Text(j['emoji'] as String, style: const TextStyle(fontSize:40)),
-              const SizedBox(height:8),
-              Text(j['nome'] as String, style: const TextStyle(fontWeight: FontWeight.bold, fontSize:14), textAlign: TextAlign.center),
-              const SizedBox(height:4),
-              Text(j['desc'] as String, style: const TextStyle(fontSize:10), textAlign: TextAlign.center),
-              const SizedBox(height:8),
-              Container(padding: const EdgeInsets.symmetric(horizontal:8, vertical:4), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)), child: const Text('JOGAR ▶️', style: TextStyle(fontSize:10, fontWeight: FontWeight.bold))),
+      backgroundColor: Colors.pink[50],
+      body: Center(
+        child: Card(
+          margin: EdgeInsets.all(20),
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text("Mundo da Alice", style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.pink)),
+              SizedBox(height: 10),
+              Text("Quem esta usando?", style: TextStyle(fontSize: 16)),
+              DropdownButton<String>(
+                value: nomeSelecionado,
+                items: familia.map((f)=> DropdownMenuItem(value: f["nome"], child: Text(f["nome"]!))).toList(),
+                onChanged: (v){ setState(()=> nomeSelecionado=v!); },
+              ),
+              TextField(controller: senhaCtrl, obscureText: true, decoration: InputDecoration(labelText: "Senha (1234)")),
+              SizedBox(height: 15),
+              ElevatedButton(onPressed: entrar, style: ElevatedButton.styleFrom(backgroundColor: Colors.pink), child: Text("Entrar", style: TextStyle(color: Colors.white))),
+              SizedBox(height: 10),
+              Text("Alice nao precisa de senha, so escolher jogo depois", style: TextStyle(fontSize: 11, color: Colors.grey))
             ]),
           ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _modoFamilia(){
-    return ListView(
-      padding: const EdgeInsets.all(12),
-      children:[
-        Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)), child: Column(children:[
-          const Text('👨‍👩‍👧 Modo Família', style: TextStyle(fontWeight: FontWeight.bold, fontSize:18)),
-          const SizedBox(height:4),
-          Text('Hoje: ${tarefas.where((t)=>t.feito).length}/${tarefas.length} tarefas | Fotos: ${tarefas.where((t)=>t.fotoPath!=null).length} | ⭐ $estrelas | 💎 $robux', style: const TextStyle(fontSize:12)),
-        ])),
-        const SizedBox(height:12),
-        const Text('📸 Fotos com horário (prova)', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height:8),
-        ...tarefas.where((t)=> t.fotoPath!=null).map((t)=> Card(
-          child: ListTile(
-            leading: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.file(File(t.fotoPath!), width:60, height:60, fit: BoxFit.cover)),
-            title: Text(t.titulo, style: const TextStyle(fontWeight: FontWeight.bold, fontSize:13)),
-            subtitle: Text('Feito às ${t.horaFeita} - ${t.horario}\nComprovação por foto ✅', style: const TextStyle(fontSize:11)),
-            trailing: IconButton(icon: const Text('❤️', style: TextStyle(fontSize:24)), onPressed: ()=> _whatsapp(familia[0]['tel']!, '❤️ Amei a foto da Alice em ${t.titulo} às ${t.horaFeita}! Aqui pode errar. Toda tentativa vale estrela!')),
-          ),
-        )),
-        if(tarefas.where((t)=> t.fotoPath!=null).isEmpty) const Card(child: Padding(padding: EdgeInsets.all(20), child: Text('Ainda sem fotos hoje. Quando a Alice clicar em FIZ! 📸 vai aparecer aqui com horário exato.', textAlign: TextAlign.center))),
-        const Divider(),
-        const Text('💌 Mandar incentivo (abre seu WhatsApp)', style: TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height:8),
-        ...familia.map((f)=> Card(
-          child: ListTile(
-            leading: const Text('👤', style: TextStyle(fontSize:28)),
-            title: Text(f['nome']!, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text(f['tel']!),
-            trailing: ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8A2BE2), foregroundColor: Colors.white),
-              onPressed: ()=> _whatsapp(f['tel']!, 'Oi! Mensagem do Mundo da Alice 🌈\n\nVocê está indo super bem! Lembre: Aqui pode errar. Toda tentativa vale estrela ⭐\n\nEstrelas hoje: $estrelas | Robux: $robux'),
-              child: const Text('Cartinha 💌'),
-            ),
-          ),
-        )),
-        const SizedBox(height:12),
-        Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.blue.shade50, borderRadius: BorderRadius.circular(12)), child: const Text('LGPD <12 anos: Sem rastreio escondido. Localização só com notificação visível. Fotos ficam só no celular da Alice. Versão igual da web com todas as funções liberadas.', style: TextStyle(fontSize:10))),
-      ],
+        ),
+      ),
     );
   }
 }
 
-// JOGOS
-
-class SilabasGame extends StatefulWidget {
-  final VoidCallback onGanha;
-  const SilabasGame({super.key, required this.onGanha});
+class TelaPrincipal extends StatefulWidget {
+  final String usuario;
+  TelaPrincipal({required this.usuario});
   @override
-  State<SilabasGame> createState() => _SilabasGameState();
+  _TelaPrincipalState createState() => _TelaPrincipalState();
 }
-class _SilabasGameState extends State<SilabasGame> {
-  final palavras = [
-    {'partes':['CA','SA'],'resp':'CASA','exibe':'CASA','dica':'🏠 Onde moramos'},
-    {'partes':['BO','LA'],'resp':'BOLA','exibe':'BOLA','dica':'⚽ Brinquedo redondo'},
-    {'partes':['RO','BLOX'],'resp':'ROBLOX','exibe':'ROBLOX','dica':'🎮 Jogo favorito'},
-    {'partes':['A','GUA'],'resp':'AGUA','exibe':'ÁGUA','dica':'💧 Precisamos beber'},
-  ];
-  String _semAcento(String s){ return s.toUpperCase().replaceAll('Á','A').replaceAll('À','A').replaceAll('Â','A').replaceAll('Ã','A').replaceAll('É','E').replaceAll('Ê','E').replaceAll('Í','I').replaceAll('Ó','O').replaceAll('Ô','O').replaceAll('Õ','O').replaceAll('Ú','U').replaceAll('Ç','C'); }
-  int idx=0;
-  String escolha='';
-  String msg='Escolha as sílabas!';
+
+class _TelaPrincipalState extends State<TelaPrincipal> {
+  SharedPreferences? prefs;
+  int robux = 0;
+  Map<String,bool> tarefas = {"Chegada":false,"Brincar":false,"Leitura":false,"Numeros":false};
+  Map<String,String> fotosHora = {};
+  Map<String,int> progresso = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
+  Map<String,int> acertosHoje = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
+  String dataHoje = "";
+  bool liberadoRoblox = false;
+  Map<String,bool> jogosComprados = {"Memoria":false,"Caca":false,"Turbo":false};
+  FlutterTts tts = FlutterTts();
+
   @override
-  Widget build(BuildContext context) {
-    final p = palavras[idx];
-    return Scaffold(appBar: AppBar(title: const Text('🔤 Sílabas Mágicas')), body: Padding(padding: const EdgeInsets.all(16), child: Column(children:[
-      Text(p['dica'] as String, style: const TextStyle(fontSize:22)), const SizedBox(height:12),
-      Text('Forme: ${p['exibe'] ?? p['resp']}', style: const TextStyle(fontSize:18, fontWeight: FontWeight.bold)), const SizedBox(height:20),
-      Row(mainAxisAlignment: MainAxisAlignment.center, children: (p['partes'] as List<String>).map((s)=> Padding(padding: const EdgeInsets.all(6), child: ElevatedButton(onPressed: (){ setState(()=> escolha+=s); }, child: Text(s, style: const TextStyle(fontSize:20))))).toList()),
-      const SizedBox(height:20), Text('Você montou: $escolha', style: const TextStyle(fontSize:22, fontWeight: FontWeight.bold)),
-      const SizedBox(height:12), Text(msg, style: const TextStyle(fontSize:16)), const SizedBox(height:20),
-      ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8A2BE2), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal:32, vertical:16)), onPressed: (){
-        if(_semAcento(escolha)==_semAcento(p['resp'] as String)){
-          widget.onGanha();
-          setState(()=> msg='🎉 Acertou! Aqui pode errar. Toda tentativa vale estrela! +1 ⭐ +3 💎');
-          Future.delayed(const Duration(seconds:1), (){ if(idx < palavras.length-1) setState((){idx++; escolha=''; msg='Próxima!';}); else Navigator.pop(context);});
-        } else {
-          setState(()=> msg='Ops, tenta de novo! Você pode errar, não tem problema. Apaga e tenta! (Vale estrela mesmo errando)');
-          // mesmo errando ganha estrela pra não ter medo
-          widget.onGanha();
+  void initState(){
+    super.initState();
+    init();
+    checarAtualizacao();
+  }
+
+  Future<void> init() async {
+    prefs = await SharedPreferences.getInstance();
+    String hoje = DateTime.now().toIso8601String().substring(0,10);
+    dataHoje = hoje;
+    setState((){
+      robux = prefs!.getInt("robux") ?? 0;
+      tarefas["Chegada"] = prefs!.getBool("tarefa_Chegada") ?? false;
+      tarefas["Brincar"] = prefs!.getBool("tarefa_Brincar") ?? false;
+      tarefas["Leitura"] = prefs!.getBool("tarefa_Leitura") ?? false;
+      tarefas["Numeros"] = prefs!.getBool("tarefa_Numeros") ?? false;
+      fotosHora["Chegada"] = prefs!.getString("foto_Chegada") ?? "";
+      fotosHora["Brincar"] = prefs!.getString("foto_Brincar") ?? "";
+      fotosHora["Leitura"] = prefs!.getString("foto_Leitura") ?? "";
+      fotosHora["Numeros"] = prefs!.getString("foto_Numeros") ?? "";
+      liberadoRoblox = prefs!.getBool("liberadoRoblox") ?? false;
+      jogosComprados["Memoria"] = prefs!.getBool("compra_Memoria") ?? false;
+      jogosComprados["Caca"] = prefs!.getBool("compra_Caca") ?? false;
+      jogosComprados["Turbo"] = prefs!.getBool("compra_Turbo") ?? false;
+      String dataSalva = prefs!.getString("data_hoje") ?? "";
+      if(dataSalva != hoje){
+        progresso = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
+        acertosHoje = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
+        prefs!.setString("data_hoje", hoje);
+      } else {
+        progresso["Silabas"] = prefs!.getInt("prog_Silabas") ?? 0;
+        progresso["Palavra"] = prefs!.getInt("prog_Palavra") ?? 0;
+        progresso["Blocos"] = prefs!.getInt("prog_Blocos") ?? 0;
+        progresso["Lojinha"] = prefs!.getInt("prog_Lojinha") ?? 0;
+      }
+    });
+    await tts.setLanguage("pt-BR");
+    await tts.setSpeechRate(0.5);
+  }
+
+  Future<void> checarAtualizacao() async {
+    try {
+      var url = Uri.parse("https://raw.githubusercontent.com/Jcobl/controle-alice/main/version.json");
+      var r = await http.get(url).timeout(Duration(seconds: 5));
+      if(r.statusCode==200){
+        var j = json.decode(r.body);
+        int vServer = j["versionCode"] ?? 0;
+        if(vServer > 68){
+          if(mounted){
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("🆕 Atualizacao disponivel! Baixe no GitHub")));
+          }
         }
-      }, child: const Text('CONFIRMAR ✅')),
-      TextButton(onPressed: ()=> setState((){escolha='';}), child: const Text('Apagar')),
-    ])));
+      }
+    } catch(e){}
+  }
+
+  void falar(String texto) async {
+    await tts.speak(texto);
+  }
+
+  Future<void> tirarFoto(String tarefa) async {
+    final picker = ImagePicker();
+    final XFile? foto = await picker.pickImage(source: ImageSource.camera);
+    if(foto!=null){
+      String hora = TimeOfDay.now().format(context);
+      String agora = DateTime.now().toString();
+      await prefs!.setBool("tarefa_"+tarefa, true);
+      await prefs!.setString("foto_"+tarefa, "Feito as "+hora+" em "+agora.substring(0,16));
+      setState((){
+        tarefas[tarefa]=true;
+        fotosHora[tarefa]="Feito as "+hora;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tarefa+" concluida! Jogo liberado")));
+    }
+  }
+
+  bool jogoLiberado(String jogo){
+    if(jogo=="Silabas") return tarefas["Chegada"]==true;
+    if(jogo=="Palavra") return tarefas["Brincar"]==true;
+    if(jogo=="Blocos") return tarefas["Leitura"]==true;
+    if(jogo=="Lojinha") return tarefas["Numeros"]==true;
+    return true;
+  }
+
+  void completarQuestao(String jogo) async {
+    if((progresso[jogo] ?? 0) >= 20) return;
+    int novo = (progresso[jogo] ?? 0) + 1;
+    int novoRobux = robux + 2;
+    await prefs!.setInt("prog_"+jogo, novo);
+    await prefs!.setInt("robux", novoRobux);
+    setState((){
+      progresso[jogo]=novo;
+      robux=novoRobux;
+    });
+    if(novo==20){
+      int bonus = robux + 10;
+      await prefs!.setInt("robux", bonus);
+      setState(()=> robux=bonus);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Parabens pelo seu esforco! +10 Robux bonus em "+jogo), backgroundColor: Colors.green));
+    }
+    if((progresso["Silabas"]??0)>=20 && (progresso["Palavra"]??0)>=20 && (progresso["Blocos"]??0)>=20 && (progresso["Lojinha"]??0)>=20){
+      if(!liberadoRoblox){
+        int total = robux + 20;
+        await prefs!.setInt("robux", total);
+        await prefs!.setBool("liberadoRoblox", true);
+        setState((){
+          liberadoRoblox=true;
+          robux=total;
+        });
+        showDialog(context: context, builder: (_)=> AlertDialog(
+          title: Text("🎉 TUDO COMPLETO!"),
+          content: Text("Alice completou 20/20 nos 4 jogos hoje! 【entity-Roblox¦canonical_name=Roblox】 liberado +20 Robux!"),
+          actions: [TextButton(onPressed: ()=> Navigator.pop(context), child: Text("OK"))],
+        ));
+      }
+    }
+  }
+
+  void abrirJogo(String nome){
+    if(!jogoLiberado(nome)){
+      String falta = "";
+      if(nome=="Silabas") falta="Chegada na escola";
+      if(nome=="Palavra") falta="Brincar";
+      if(nome=="Blocos") falta="Leitura";
+      if(nome=="Lojinha") falta="Numeros";
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Faca a tarefa "+falta+" e tire foto para liberar!")));
+      return;
+    }
+    if(nome=="Silabas") Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoSilabas(falar: falar, onAcerto: ()=> completarQuestao("Silabas"), progresso: progresso["Silabas"]??0)));
+    if(nome=="Palavra") Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoPalavra(falar: falar, onAcerto: ()=> completarQuestao("Palavra"), progresso: progresso["Palavra"]??0)));
+    if(nome=="Blocos") Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoBlocos(falar: falar, onAcerto: ()=> completarQuestao("Blocos"), progresso: progresso["Blocos"]??0)));
+    if(nome=="Lojinha") Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoLojinha(falar: falar, onAcerto: ()=> completarQuestao("Lojinha"), progresso: progresso["Lojinha"]??0)));
+  }
+
+  void comprarJogo(String nome, int preco) async {
+    if((jogosComprados[nome]??false)==true){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Voce ja comprou "+nome)));
+      return;
+    }
+    if(robux < preco){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Robux insuficiente! Precisa de "+preco.toString()+" e voce tem "+robux.toString())));
+      return;
+    }
+    int novo = robux - preco;
+    await prefs!.setInt("robux", novo);
+    await prefs!.setBool("compra_"+nome, true);
+    setState((){
+      robux=novo;
+      jogosComprados[nome]=true;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(nome+" comprado!"), backgroundColor: Colors.green));
+  }
+
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Mundo da Alice - "+widget.usuario),
+        backgroundColor: Colors.pink,
+        actions: [
+          Center(child: Padding(padding: EdgeInsets.all(8), child: Text("R\$ "+robux.toString(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)))),
+          IconButton(icon: Icon(Icons.logout), onPressed: ()=> Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> TelaLoginFamilia())))
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(12),
+        child: Column(
+          children: [
+            if(liberadoRoblox)
+              Card(color: Colors.green[100], child: ListTile(leading: Icon(Icons.check_circle, color: Colors.green), title: Text("Roblox Liberado Hoje! +20 Robux ganhos"), subtitle: Text("Parabens pelo esforco da Alice"))),
+            Text("TAREFAS DO DIA - Tire foto para liberar jogos", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            SizedBox(height: 8),
+            Row(children: [
+              Expanded(child: _cardTarefa("Chegada", Icons.school, "Silabas Magicas")),
+              Expanded(child: _cardTarefa("Brincar", Icons.sports_soccer, "Palavra Escondida")),
+            ]),
+            Row(children: [
+              Expanded(child: _cardTarefa("Leitura", Icons.book, "Contando Blocos")),
+              Expanded(child: _cardTarefa("Numeros", Icons.calculate, "Lojinha")),
+            ]),
+            Divider(),
+            Text("JOGOS - 20 questoes por dia", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            SizedBox(height: 8),
+            _cardJogo("Silabas", "Silabas Magicas", "Chegada libera", Colors.orange, progresso["Silabas"]??0),
+            _cardJogo("Palavra", "Palavra Escondida", "Brincar libera", Colors.blue, progresso["Palavra"]??0),
+            _cardJogo("Blocos", "Contando Blocos", "Leitura libera", Colors.purple, progresso["Blocos"]??0),
+            _cardJogo("Lojinha", "Lojinha da Alice", "Numeros libera", Colors.green, progresso["Lojinha"]??0),
+            Divider(),
+            Text("LOJINHA - Compre jogos extras com Robux", style: TextStyle(fontWeight: FontWeight.bold)),
+            _cardLoja("Memoria", "Jogo da Memoria", 50),
+            _cardLoja("Caca", "Caca Palavras", 70),
+            _cardLoja("Turbo", "Turbo Matematica", 100),
+            if(liberadoRoblox)
+              ElevatedButton(onPressed: () async {
+                var uri = Uri.parse("https://www.roblox.com");
+                if(await canLaunchUrl(uri)) await launchUrl(uri);
+              }, child: Text("Abrir Roblox - Liberado!")),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _cardTarefa(String nome, IconData icone, String libera){
+    bool feito = tarefas[nome]??false;
+    return Card(
+      color: feito? Colors.green[100] : Colors.white,
+      child: Padding(
+        padding: EdgeInsets.all(8),
+        child: Column(children: [
+          Icon(icone, color: feito? Colors.green : Colors.grey),
+          Text(nome, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+          Text(libera, style: TextStyle(fontSize: 10)),
+          if(fotosHora[nome]!=null && fotosHora[nome]!="") Text(fotosHora[nome]!, style: TextStyle(fontSize: 9, color: Colors.blue)),
+          ElevatedButton(onPressed: ()=> tirarFoto(nome), child: Text(feito? "Refazer foto" : "Tirar foto")),
+        ]),
+      ),
+    );
+  }
+
+  Widget _cardJogo(String id, String titulo, String desc, Color cor, int prog){
+    bool liberado = jogoLiberado(id);
+    return Card(
+      child: ListTile(
+        leading: CircleAvatar(backgroundColor: liberado? cor : Colors.grey, child: Icon(Icons.play_arrow, color: Colors.white)),
+        title: Text(titulo+" ("+prog.toString()+"/20)"),
+        subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(liberado? desc : "Bloqueado - faca tarefa"),
+          LinearProgressIndicator(value: prog/20, backgroundColor: Colors.grey[300], color: cor),
+        ]),
+        trailing: IconButton(icon: Icon(Icons.volume_up), onPressed: ()=> falar(titulo)),
+        onTap: ()=> abrirJogo(id),
+      ),
+    );
+  }
+
+  Widget _cardLoja(String id, String titulo, int preco){
+    bool comprado = jogosComprados[id]??false;
+    return Card(
+      child: ListTile(
+        leading: Icon(Icons.shopping_cart, color: comprado? Colors.green : Colors.orange),
+        title: Text(titulo),
+        subtitle: Text(comprado? "Comprado!" : "Preco: "+preco.toString()+" Robux"),
+        trailing: ElevatedButton(
+          onPressed: ()=> comprarJogo(id, preco),
+          child: Text(comprado? "Jogar" : "Comprar"),
+        ),
+      ),
+    );
   }
 }
 
-class PalavraGame extends StatefulWidget {
-  final VoidCallback onGanha;
-  const PalavraGame({super.key, required this.onGanha});
+class JogoSilabas extends StatefulWidget {
+  final Function falar;
+  final Function onAcerto;
+  final int progresso;
+  JogoSilabas({required this.falar, required this.onAcerto, required this.progresso});
   @override
-  State<PalavraGame> createState() => _PalavraGameState();
+  _JogoSilabasState createState() => _JogoSilabasState();
 }
-class _PalavraGameState extends State<PalavraGame> {
-  final palavras = [
-    {'palavra':'LIVRO','dica':'📚 Usamos para ler'},
-    {'palavra':'AGUA','dica':'💧 Bebemos todo dia'},
-    {'palavra':'ALICE','dica':'👧 Nome da nossa aventureira'},
+class _JogoSilabasState extends State<JogoSilabas> {
+  List<Map<String,dynamic>> perguntas = [
+    {"palavra":"CASA","silaba":"CA","opcoes":["CA","BO","DA"]},
+    {"palavra":"BOLA","silaba":"BO","opcoes":["CA","BO","LA"]},
+    {"palavra":"AGUA","silaba":"A","opcoes":["A","E","O"]},
+    {"palavra":"GATO","silaba":"GA","opcoes":["GA","TO","MI"]},
+    {"palavra":"PATO","silaba":"PA","opcoes":["PA","TI","GO"]},
+    {"palavra":"MALA","silaba":"MA","opcoes":["MA","LA","TA"]},
+    {"palavra":"FADA","silaba":"FA","opcoes":["FA","DA","BA"]},
+    {"palavra":"LUA","silaba":"LU","opcoes":["LU","A","BO"]},
+    {"palavra":"SOL","silaba":"SOL","opcoes":["SOL","LUA","MAR"]},
+    {"palavra":"MAR","silaba":"MAR","opcoes":["MAR","SOL","PAO"]},
   ];
-  int idx=0;
-  String tent=''; String msg='';
+  int idx = 0;
+  Random rnd = Random();
+
+  String removerAcento(String s){
+    s = s.replaceAll("Á","A").replaceAll("À","A").replaceAll("Ã","A").replaceAll("Â","A");
+    s = s.replaceAll("É","E").replaceAll("Ê","E");
+    s = s.replaceAll("Í","I");
+    s = s.replaceAll("Ó","O").replaceAll("Ô","O").replaceAll("Õ","O");
+    s = s.replaceAll("Ú","U");
+    return s;
+  }
+
+  void responder(String resp){
+    String correta = perguntas[idx]["silaba"];
+    String r1 = removerAcento(resp.toUpperCase());
+    String r2 = removerAcento(correta.toUpperCase());
+    if(r1==r2){
+      widget.onAcerto();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
+      setState((){
+        idx = rnd.nextInt(perguntas.length);
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Tente de novo! A silaba e "+correta), backgroundColor: Colors.red));
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    final p = palavras[idx];
-    return Scaffold(appBar: AppBar(title: const Text('🔍 Palavra Escondida')), body: Padding(padding: const EdgeInsets.all(16), child: Column(children:[
-      Text(p['dica'] as String, style: const TextStyle(fontSize:22)), const SizedBox(height:20),
-      Text((p['palavra'] as String).split('').map((c)=> tent.contains(c) ? c : '_').join(' '), style: const TextStyle(fontSize:32, letterSpacing: 8, fontWeight: FontWeight.bold)),
-      const SizedBox(height:20),
-      Wrap(spacing:6, children: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((l)=> ElevatedButton(onPressed: (){ setState(()=> tent+=l); }, child: Text(l))).toList()),
-      const SizedBox(height:12), Text('Letras usadas: $tent'), Text(msg, style: const TextStyle(fontWeight: FontWeight.bold)),
-      const SizedBox(height:12),
-      ElevatedButton(onPressed: (){
-        if(tent.contains(p['palavra'] as String) || (p['palavra'] as String).split('').every((c)=> tent.contains(c))){
-          widget.onGanha(); setState(()=> msg='🎉 Achou! +1 ⭐ +3 💎');
-          Future.delayed(const Duration(seconds:1), (){ if(idx < palavras.length-1) setState((){idx++; tent=''; msg='';}); else Navigator.pop(context);});
-        } else {
-          setState(()=> msg='Continua tentando! Aqui pode errar.');
-        }
-      }, child: const Text('VERIFICAR')),
-    ])));
+  Widget build(BuildContext context){
+    var p = perguntas[idx];
+    return Scaffold(
+      appBar: AppBar(title: Text("Silabas Magicas "+widget.progresso.toString()+"/20"), backgroundColor: Colors.orange),
+      body: Column(children: [
+        LinearProgressIndicator(value: widget.progresso/20),
+        GestureDetector(
+          onTap: ()=> widget.falar("Qual a primeira silaba de "+p["palavra"]),
+          child: Container(color: Colors.yellow[200], width: double.infinity, padding: EdgeInsets.all(16), child: Row(children: [
+            Icon(Icons.volume_up),
+            SizedBox(width: 8),
+            Expanded(child: Text("Qual a primeira silaba de "+p["palavra"]+"?", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+          ])),
+        ),
+        SizedBox(height: 20),
+        Text(p["palavra"], style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold)),
+        SizedBox(height: 20),
+        Wrap(children: (p["opcoes"] as List).map((op)=> Padding(padding: EdgeInsets.all(8), child: ElevatedButton(onPressed: ()=> responder(op), child: Text(op, style: TextStyle(fontSize: 24))))).toList())
+      ]),
+    );
   }
 }
 
-class BlocosGame extends StatefulWidget {
-  final VoidCallback onGanha;
-  const BlocosGame({super.key, required this.onGanha});
+class JogoPalavra extends StatefulWidget {
+  final Function falar;
+  final Function onAcerto;
+  final int progresso;
+  JogoPalavra({required this.falar, required this.onAcerto, required this.progresso});
   @override
-  State<BlocosGame> createState() => _BlocosGameState();
+  _JogoPalavraState createState() => _JogoPalavraState();
 }
-class _BlocosGameState extends State<BlocosGame> {
-  int qtd = 0; int resp = 0; String msg='';
-  final rand = Random();
-  List<Color> cores = [];
+class _JogoPalavraState extends State<JogoPalavra> {
+  List<Map<String,String>> palavras = [
+    {"dica":"Animal que late","palavra":"CACHORRO"},
+    {"dica":"Fruta amarela","palavra":"BANANA"},
+    {"dica":"Cor do ceu","palavra":"AZUL"},
+    {"dica":"Voce mora aqui","palavra":"CASA"},
+  ];
+  int idx = 0;
+  TextEditingController ctrl = TextEditingController();
+  Random rnd = Random();
+
+  void verificar(){
+    if(ctrl.text.toUpperCase().trim() == palavras[idx]["palavra"]){
+      widget.onAcerto();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
+      setState((){
+        idx = rnd.nextInt(palavras.length);
+        ctrl.clear();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errou! Dica: "+palavras[idx]["dica"]!), backgroundColor: Colors.red));
+    }
+  }
+
   @override
-  void initState(){ super.initState(); _nova(); }
-  void _nova(){ setState((){ qtd = rand.nextInt(8)+2; resp=0; msg='Conte os blocos 🟦'; cores = List.generate(qtd, (_) => Colors.primaries[rand.nextInt(Colors.primaries.length)]); });}
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text('🟦 Contando Blocos')), body: Padding(padding: const EdgeInsets.all(16), child: Column(children:[
-      Text('Quantos blocos?', style: const TextStyle(fontSize:20, fontWeight: FontWeight.bold)), const SizedBox(height:12),
-      Wrap(spacing:8, runSpacing:8, children: List.generate(qtd, (i)=> Container(width:50, height:50, decoration: BoxDecoration(color: cores.isNotEmpty ? cores[i] : Colors.blue, borderRadius: BorderRadius.circular(8), border: Border.all(width:2)), child: const Center(child: Text('🧱'))))),
-      const SizedBox(height:20),
-      Wrap(alignment: WrapAlignment.center, spacing:8, runSpacing:8, children: List.generate(10, (i)=> SizedBox(width:60, height:45, child: ElevatedButton(onPressed: ()=> setState(()=> resp=i+1), child: Text('${i+1}', style: TextStyle(fontSize:18)))))),
-      const SizedBox(height:12), Text('Você escolheu: $resp', style: const TextStyle(fontSize:20)), Text(msg, style: const TextStyle(fontWeight: FontWeight.bold)),
-      const SizedBox(height:12),
-      ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8A2BE2), foregroundColor: Colors.white), onPressed: (){
-        if(resp==qtd){ widget.onGanha(); setState(()=> msg='🎉 Acertou! $qtd blocos! +1 ⭐ +3 💎'); Future.delayed(const Duration(seconds:1), _nova); }
-        else { setState(()=> msg='Quase! Conta de novo. Aqui pode errar, vale estrela mesmo assim!'); widget.onGanha(); }
-      }, child: const Text('CONFIRMAR')),
-    ])));
+  Widget build(BuildContext context){
+    return Scaffold(
+      appBar: AppBar(title: Text("Palavra Escondida "+widget.progresso.toString()+"/20"), backgroundColor: Colors.blue),
+      body: Column(children: [
+        LinearProgressIndicator(value: widget.progresso/20),
+        GestureDetector(
+          onTap: ()=> widget.falar("Dica: "+palavras[idx]["dica"]!),
+          child: Container(color: Colors.yellow[200], width: double.infinity, padding: EdgeInsets.all(16), child: Row(children: [
+            Icon(Icons.volume_up),
+            SizedBox(width: 8),
+            Expanded(child: Text("Dica: "+palavras[idx]["dica"]!, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+          ])),
+        ),
+        SizedBox(height: 20),
+        Padding(padding: EdgeInsets.all(12), child: TextField(controller: ctrl, decoration: InputDecoration(labelText: "Digite a palavra", border: OutlineInputBorder()), textCapitalization: TextCapitalization.characters)),
+        SizedBox(height: 10),
+        ElevatedButton(onPressed: verificar, child: Text("Verificar")),
+      ]),
+    );
   }
 }
 
-class LojinhaGame extends StatefulWidget {
-  final VoidCallback onGanha;
-  const LojinhaGame({super.key, required this.onGanha});
+class JogoBlocos extends StatefulWidget {
+  final Function falar;
+  final Function onAcerto;
+  final int progresso;
+  JogoBlocos({required this.falar, required this.onAcerto, required this.progresso});
   @override
-  State<LojinhaGame> createState() => _LojinhaGameState();
+  _JogoBlocosState createState() => _JogoBlocosState();
 }
-class _LojinhaGameState extends State<LojinhaGame> {
-  int a=3,b=2,resp=0; String msg=''; final rand=Random();
+class _JogoBlocosState extends State<JogoBlocos> {
+  Random rnd = Random();
+  int quantidade = 3;
+  int corFixa = 0;
+  List<Color> cores = [Colors.red, Colors.blue, Colors.green, Colors.orange, Colors.purple];
+
   @override
-  void initState(){ super.initState(); _nova(); }
-  void _nova(){ setState((){a=rand.nextInt(5)+1; b=rand.nextInt(5)+1; resp=0; msg='';});}
+  void initState(){
+    super.initState();
+    gerar();
+  }
+
+  void gerar(){
+    setState((){
+      quantidade = rnd.nextInt(10)+1;
+      corFixa = rnd.nextInt(cores.length);
+    });
+  }
+
+  void responder(int resp){
+    if(resp==quantidade){
+      widget.onAcerto();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
+      gerar();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errou! Conte de novo"), backgroundColor: Colors.red));
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: const Text('🏪 Lojinha da Aventura')), body: Padding(padding: const EdgeInsets.all(20), child: Column(children:[
-      Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.yellow.shade100, borderRadius: BorderRadius.circular(16)), child: Column(children:[
-        Text('Você tem $a 💎 Robux', style: const TextStyle(fontSize:20)), Text('Ganhou mais $b 💎', style: const TextStyle(fontSize:20)), const SizedBox(height:12),
-        const Text('Quanto tem agora?', style: TextStyle(fontWeight: FontWeight.bold)), const SizedBox(height:8),
-        Text('$a + $b = ?', style: const TextStyle(fontSize:28, fontWeight: FontWeight.bold)),
-      ])),
-      const SizedBox(height:20),
-      Wrap(alignment: WrapAlignment.center, spacing:8, runSpacing:8, children: List.generate(10, (i)=> SizedBox(width:60, height:45, child: ElevatedButton(onPressed: ()=> setState(()=> resp=i+1), child: Text('${i+1}', style: TextStyle(fontSize:18)))))),
-      const SizedBox(height:12), Text('Resposta: $resp', style: const TextStyle(fontSize:22)), Text(msg, style: const TextStyle(fontWeight: FontWeight.bold)),
-      const SizedBox(height:12),
-      ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal:32, vertical:14)), onPressed: (){
-        if(resp==a+b){ widget.onGanha(); setState(()=> msg='🎉 Isso! ${a+b} Robux! +1 ⭐ +3 💎'); Future.delayed(const Duration(seconds:1), _nova); }
-        else { setState(()=> msg='Ops, tenta somar com os dedinhos! Aqui pode errar.'); widget.onGanha(); }
-      }, child: const Text('COMPRAR 🛒')),
-    ])));
+  Widget build(BuildContext context){
+    return Scaffold(
+      appBar: AppBar(title: Text("Contando Blocos "+widget.progresso.toString()+"/20"), backgroundColor: Colors.purple),
+      body: Column(children: [
+        LinearProgressIndicator(value: widget.progresso/20),
+        GestureDetector(
+          onTap: ()=> widget.falar("Quantos blocos voce ve?"),
+          child: Container(color: Colors.yellow[200], width: double.infinity, padding: EdgeInsets.all(16), child: Row(children: [
+            Icon(Icons.volume_up),
+            SizedBox(width: 8),
+            Text("Quantos blocos voce ve?", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ])),
+        ),
+        SizedBox(height: 10),
+        Expanded(
+          child: GridView.count(
+            crossAxisCount: 5,
+            children: List.generate(quantidade, (i)=> Container(margin: EdgeInsets.all(4), color: cores[corFixa])),
+          ),
+        ),
+        Column(children: [
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [1,2,3,4,5].map((n)=> ElevatedButton(onPressed: ()=> responder(n), child: Text(n.toString()))).toList()),
+          SizedBox(height: 8),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [6,7,8,9,10].map((n)=> ElevatedButton(onPressed: ()=> responder(n), child: Text(n.toString()))).toList()),
+          SizedBox(height: 20),
+        ])
+      ]),
+    );
+  }
+}
+
+class JogoLojinha extends StatefulWidget {
+  final Function falar;
+  final Function onAcerto;
+  final int progresso;
+  JogoLojinha({required this.falar, required this.onAcerto, required this.progresso});
+  @override
+  _JogoLojinhaState createState() => _JogoLojinhaState();
+}
+class _JogoLojinhaState extends State<JogoLojinha> {
+  Random rnd = Random();
+  int preco = 5;
+  int pago = 0;
+  List<int> notas = [1,2,5];
+
+  @override
+  void initState(){
+    super.initState();
+    gerar();
+  }
+
+  void gerar(){
+    setState((){
+      preco = rnd.nextInt(10)+1;
+      pago = 0;
+    });
+  }
+
+  void addNota(int v){
+    setState(()=> pago+=v);
+  }
+
+  void verificar(){
+    if(pago==preco){
+      widget.onAcerto();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
+      gerar();
+    } else if(pago>preco){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Deu troco a mais! Tente de novo"), backgroundColor: Colors.red));
+      setState(()=> pago=0);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Falta dinheiro!"), backgroundColor: Colors.orange));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(
+      appBar: AppBar(title: Text("Lojinha "+widget.progresso.toString()+"/20"), backgroundColor: Colors.green),
+      body: Column(children: [
+        LinearProgressIndicator(value: widget.progresso/20),
+        GestureDetector(
+          onTap: ()=> widget.falar("O preco e "+preco.toString()+" reais, quanto vai pagar?"),
+          child: Container(color: Colors.yellow[200], width: double.infinity, padding: EdgeInsets.all(16), child: Row(children: [
+            Icon(Icons.volume_up),
+            SizedBox(width: 8),
+            Expanded(child: Text("Preco: R\$ "+preco.toString()+" - Quanto pagar?", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+          ])),
+        ),
+        SizedBox(height: 20),
+        Text("Pago: R\$ "+pago.toString(), style: TextStyle(fontSize: 24)),
+        SizedBox(height: 10),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: notas.map((n)=> ElevatedButton(onPressed: ()=> addNota(n), child: Text("R\$ "+n.toString()))).toList()),
+        SizedBox(height: 20),
+        ElevatedButton(onPressed: verificar, child: Text("Pagar")),
+        ElevatedButton(onPressed: ()=> setState(()=> pago=0), child: Text("Limpar")),
+      ]),
+    );
   }
 }
