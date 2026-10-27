@@ -1,7 +1,5 @@
 {
-  "version": "1.0.52",
-  "versionCode": 52,
-  "notes": "V3 verde garantido - progressivo 20 questoes, loja Robux, familia com senha, voz",
-  "apk_url": "https://github.com/Jcobl/controle-alice/releases/latest",
-  "obrigatoria": false
+  "versionCode": 68,
+  "versionName": "1.0.68",
+  "message": "Nova versao Mundo da Alice com progressivo"
 }
