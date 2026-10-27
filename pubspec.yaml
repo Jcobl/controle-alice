@@ -1,7 +1,7 @@
 name: controle_alice
-description: Mundo da Alice - completo
+description: Mundo da Alice - progressivo com loja e familia com senha
 publish_to: 'none'
-version: 1.0.31+31
+version: 1.0.47+47
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
@@ -11,5 +11,7 @@ dependencies:
   shared_preferences: ^2.3.2
   image_picker: ^1.1.2
   url_launcher: ^6.2.5
+  flutter_tts: ^4.2.0
+  http: ^1.2.2
 flutter:
   uses-material-design: true
