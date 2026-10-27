@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 void main() => runApp(MundoAliceApp());
 
@@ -90,11 +91,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   Map<String,int> progresso = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
   bool liberadoRoblox = false;
   Map<String,bool> jogosComprados = {"Memoria":false,"Caca":false,"Turbo":false};
+  FlutterTts tts = FlutterTts();
 
   @override
   void initState(){
     super.initState();
     init();
+    tts.setLanguage("pt-BR");
+    tts.setSpeechRate(0.5);
   }
 
   Future<void> init() async {
@@ -127,8 +131,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     });
   }
 
-  void falar(String texto){
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("🔊 "+texto)));
+  void falar(String texto) async {
+    await tts.speak(texto);
   }
 
   Future<void> tirarFoto(String tarefa) async {
