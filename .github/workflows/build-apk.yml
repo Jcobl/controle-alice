@@ -15,27 +15,8 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - name: Backup seus arquivos
-        run: |
-          mkdir -p /tmp/save
-          cp lib/main.dart /tmp/save/main.dart 2>/dev/null || echo "sem main para backup"
-          cp pubspec.yaml /tmp/save/pubspec.yaml 2>/dev/null || echo "sem pubspec para backup"
-          ls -la /tmp/save/
-      - name: Recriar Android sem perder seu codigo
-        run: |
-          rm -rf android
-          flutter create . --project-name controle_alice --platforms=android --no-pub
-          echo "--- depois do create ---"
-          ls -la lib/
-      - name: Restaurar seus arquivos e compilar
-        run: |
-          cp /tmp/save/main.dart lib/main.dart
-          cp /tmp/save/pubspec.yaml pubspec.yaml
-          echo "--- arquivos restaurados ---"
-          ls -la lib/
-          cat pubspec.yaml
-          flutter pub get
-          flutter build apk --release
+      - run: flutter pub get
+      - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: app-alice-release
