@@ -10,15 +10,35 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Salvar seus arquivos
+        run: |
+          cp lib/main.dart /tmp/main.dart
+          cp pubspec.yaml /tmp/pubspec.yaml
+          cp android/app/src/main/AndroidManifest.xml /tmp/AndroidManifest.xml || true
+          
       - uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
+          
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-      - run: flutter pub get
-      - run: flutter build apk --release
+          
+      - name: Criar esqueleto Flutter
+        run: flutter create . --project-name controle_alice --platforms=android --no-pub
+          
+      - name: Restaurar seus arquivos
+        run: |
+          cp /tmp/main.dart lib/main.dart
+          cp /tmp/pubspec.yaml pubspec.yaml
+          cp /tmp/AndroidManifest.xml android/app/src/main/AndroidManifest.xml || true
+          flutter pub get
+          
+      - name: Build APK
+        run: flutter build apk --release
+        
       - uses: actions/upload-artifact@v4
         with:
           name: app-alice-release
