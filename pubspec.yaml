@@ -1,7 +1,7 @@
 name: controle_alice
-description: Mundo da Alice - v3 sem tts para ficar verde
+description: Mundo da Alice
 publish_to: 'none'
-version: 1.0.56+56
+version: 1.0.65+65
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
