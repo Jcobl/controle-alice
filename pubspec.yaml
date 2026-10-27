@@ -1,17 +1,15 @@
-
 name: controle_alice
-description: Launcher infantil da Alice com bloqueio e timer Roblox
+description: Mundo da Alice
 publish_to: 'none'
-version: 1.0.0+1
-
+version: 1.0.0+8
 environment:
-  sdk: ">=3.0.0 <4.0.0"
-
+  sdk: '>=3.0.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.2
   shared_preferences: ^2.2.2
-  usage_stats: ^1.0.0
-
+  image_picker: ^1.0.7
+  url_launcher: ^6.2.2
 flutter:
   uses-material-design: true
