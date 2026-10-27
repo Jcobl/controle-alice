@@ -15,12 +15,10 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.24.5'
-      - name: Limpar tudo e recriar Android do zero
+          flutter-version: '3.27.3'
+      - name: Limpar tudo e recriar Android
         run: |
-          rm -rf android
-          rm -rf build
-          rm -f pubspec.lock
+          rm -rf android build pubspec.lock
           flutter clean
           flutter create . --project-name controle_alice --platforms=android --no-pub
           flutter pub get
