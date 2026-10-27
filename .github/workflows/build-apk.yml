@@ -15,20 +15,12 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.27.3'
-      - name: Backup seus arquivos
+          flutter-version: '3.24.5'
+      - name: Build direto sem recriar Android
         run: |
-          mkdir -p /tmp/save
-          cp lib/main.dart /tmp/save/main.dart
-          cp pubspec.yaml /tmp/save/pubspec.yaml
-      - name: Recriar Android
-        run: |
-          rm -rf android
-          flutter create . --project-name controle_alice --platforms=android --no-pub
-      - name: Restaurar e compilar
-        run: |
-          cp /tmp/save/main.dart lib/main.dart
-          cp /tmp/save/pubspec.yaml pubspec.yaml
+          if [ ! -d "android" ]; then
+            flutter create . --project-name controle_alice --platforms=android --no-pub
+          fi
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
       - uses: actions/upload-artifact@v4
