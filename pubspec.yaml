@@ -1,16 +1,16 @@
 name: controle_alice
 description: Mundo da Alice - com atualizacao online
 publish_to: 'none'
-version: 1.0.9+9
+version: 1.0.10+10
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.2
-  shared_preferences: ^2.2.2
-  image_picker: ^1.0.7
-  url_launcher: ^6.2.2
-  http: ^1.1.0
+  cupertino_icons: ^1.0.8
+  shared_preferences: ^2.3.2
+  image_picker: ^1.1.2
+  url_launcher: ^6.2.5
+  http: ^1.2.2
 flutter:
   uses-material-design: true
