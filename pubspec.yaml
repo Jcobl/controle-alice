@@ -1,7 +1,7 @@
 name: controle_alice
-description: Mundo da Alice V5 Evolutiva Rosa Roxo 1000 palavras IA
+description: Mundo da Alice V5 Evolutiva Rosa Roxo 1000 palavras IA iOS
 publish_to: 'none'
-version: 1.0.102+102
+version: 1.0.103+103
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
