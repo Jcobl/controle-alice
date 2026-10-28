@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
@@ -13,104 +14,166 @@ class MundoAliceApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Mundo da Alice',
+      title: 'Mundo da Alice - Roblox',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.pink, fontFamily: 'Roboto'),
-      home: TelaEscolhaInicial(),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Color(0xFF18191A),
+        primaryColor: Color(0xFFE22326),
+        fontFamily: 'Roboto',
+      ),
+      home: TelaEscolhaRoblox(),
     );
   }
 }
 
-// TELA INICIAL COM 2 BOTOES GRANDES
-class TelaEscolhaInicial extends StatelessWidget {
+// ============ TELA INICIAL ROBLOX.COM ============
+class TelaEscolhaRoblox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFFF6B9D), Color(0xFFC44569), Color(0xFFF8B500)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+      backgroundColor: Color(0xFF18191A),
+      body: Column(
+        children: [
+          // HEADER ROBLOX
+          Container(
+            height: 60,
+            color: Color(0xFF232527),
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(color: Color(0xFFE22326), borderRadius: BorderRadius.circular(6)),
+                  child: Text("ROBLOX", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: Colors.white, letterSpacing: 1)),
+                ),
+                SizedBox(width: 10),
+                Text("MUNDO DA ALICE", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white70)),
+                Spacer(),
+                Icon(Icons.search, color: Colors.white54),
+                SizedBox(width: 12),
+                Icon(Icons.settings, color: Colors.white54),
+              ],
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Center(
+          Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.all(16),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20),
+                  // BANNER
                   Container(
+                    width: double.infinity,
                     padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(25),
-                      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0,5))],
+                      gradient: LinearGradient(colors: [Color(0xFFE22326), Color(0xFFFF6B6B)]),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Column(children: [
-                      Text("🌈", style: TextStyle(fontSize: 50)),
-                      Text("MUNDO", style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFFFF6B9D), letterSpacing: 2)),
-                      Text("DA ALICE", style: TextStyle(fontSize: 32, fontWeight: FontWeight.w900, color: Color(0xFFF8B500), letterSpacing: 2)),
-                      SizedBox(height: 10),
-                      Text("Aprender brincando!", style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-                    ]),
-                  ),
-                  SizedBox(height: 40),
-                  // BOTAO ALICE
-                  Container(
-                    width: double.infinity,
-                    height: 120,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TelaAlice())),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Color(0xFFFF6B9D),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        elevation: 8,
-                      ),
-                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        Text("🎮", style: TextStyle(fontSize: 40)),
-                        SizedBox(width: 15),
-                        Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Text("SOU A ALICE", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
-                          Text("Quero jogar!", style: TextStyle(fontSize: 14)),
-                        ]),
-                      ]),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Text("MUNDO DA ALICE", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Colors.white)),
+                            SizedBox(height: 6),
+                            Text("Complete tarefas, tire fotos e libere jogos estilo Roblox!", style: TextStyle(color: Colors.white70, fontSize: 14)),
+                            SizedBox(height: 12),
+                            Container(padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)), child: Text("7 anos • Aprender brincando", style: TextStyle(fontSize: 12))),
+                          ]),
+                        ),
+                        Text("🌈", style: TextStyle(fontSize: 60)),
+                      ],
                     ),
                   ),
                   SizedBox(height: 20),
-                  // BOTAO RESPONSAVEL
-                  Container(
-                    width: double.infinity,
-                    height: 120,
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TelaLoginFamilia())),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF2C3E50),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        elevation: 8,
-                      ),
-                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        Text("🔒", style: TextStyle(fontSize: 40)),
-                        SizedBox(width: 15),
-                        Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Text("RESPONSAVEL", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
-                          Text("Ver tarefas e fotos", style: TextStyle(fontSize: 13)),
-                        ]),
-                      ]),
-                    ),
+                  Text("ESCOLHA SEU PERFIL", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+                  SizedBox(height: 12),
+                  // CARD ALICE - ESTILO ROBLOX GAME CARD
+                  _RobloxCard(
+                    cor: Color(0xFF00A2FF),
+                    titulo: "SOU A ALICE",
+                    subtitulo: "Jogar e fazer tarefas com foto",
+                    descricao: "4 tarefas com foto • 4 jogos • Lojinha Robux",
+                    icone: "🎮",
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TelaAliceRoblox())),
                   ),
-                  SizedBox(height: 30),
-                  Text("Toque em quem voce e", style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  SizedBox(height: 12),
+                  _RobloxCard(
+                    cor: Color(0xFF393B3D),
+                    titulo: "RESPONSÁVEL",
+                    subtitulo: "Ver fotos, progresso e liberar Roblox",
+                    descricao: "Senha: 1234 • Ver horários • Aprovar tarefas",
+                    icone: "🔒",
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => TelaLoginFamilia())),
+                  ),
+                  SizedBox(height: 20),
+                  Text("COMO FUNCIONA", style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white54)),
+                  SizedBox(height: 8),
+                  Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: Color(0xFF232527), borderRadius: BorderRadius.circular(8)),
+                    child: Column(children: [
+                      _PassoRoblox(n: "1", txt: "Alice entra e tira foto das 4 tarefas do dia"),
+                      _PassoRoblox(n: "2", txt: "Cada foto libera 1 jogo (20 questões cada)"),
+                      _PassoRoblox(n: "3", txt: "Cada acerto = +2 Robux, bônus +10 quando faz 20/20"),
+                      _PassoRoblox(n: "4", txt: "Fazendo 80/80 libera Roblox por 20 min"),
+                      _PassoRoblox(n: "5", txt: "Na lojinha compra jogos novos com Robux"),
+                    ]),
+                  ),
                 ],
               ),
             ),
           ),
-        ),
+        ],
       ),
+    );
+  }
+}
+
+class _RobloxCard extends StatelessWidget {
+  final Color cor;
+  final String titulo, subtitulo, descricao, icone;
+  final VoidCallback onTap;
+  _RobloxCard({required this.cor, required this.titulo, required this.subtitulo, required this.descricao, required this.icone, required this.onTap});
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(color: Color(0xFF232527), borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.white10)),
+        child: Row(children: [
+          Container(width: 70, height: 70, decoration: BoxDecoration(color: cor, borderRadius: BorderRadius.circular(12)), child: Center(child: Text(icone, style: TextStyle(fontSize: 32)))),
+          SizedBox(width: 14),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(titulo, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Colors.white)),
+              Text(subtitulo, style: TextStyle(fontSize: 13, color: Colors.white70)),
+              SizedBox(height: 4),
+              Text(descricao, style: TextStyle(fontSize: 11, color: Colors.white38)),
+            ]),
+          ),
+          Icon(Icons.play_arrow, color: Colors.white54),
+        ]),
+      ),
+    );
+  }
+}
+
+class _PassoRoblox extends StatelessWidget {
+  final String n, txt;
+  _PassoRoblox({required this.n, required this.txt});
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(children: [
+        Container(width: 22, height: 22, decoration: BoxDecoration(color: Color(0xFF393B3D), shape: BoxShape.circle), child: Center(child: Text(n, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)))),
+        SizedBox(width: 8),
+        Expanded(child: Text(txt, style: TextStyle(fontSize: 12, color: Colors.white70))),
+      ]),
     );
   }
 }
@@ -129,356 +192,241 @@ class _TelaLoginFamiliaState extends State<TelaLoginFamilia> {
   ];
   String nomeSelecionado = "Ana Beatriz";
   TextEditingController senhaCtrl = TextEditingController();
-
   void entrar() async {
     var fam = familia.firstWhere((f)=> f["nome"]==nomeSelecionado);
     if(senhaCtrl.text == fam["senha"]){
       SharedPreferences p = await SharedPreferences.getInstance();
       await p.setString("usuario_logado", nomeSelecionado);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> TelaResponsavel(usuario: nomeSelecionado)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=> TelaResponsavelRoblox(usuario: nomeSelecionado)));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Senha incorreta! Use 1234")));
     }
   }
-
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: Text("Area dos Responsaveis"), backgroundColor: Color(0xFF2C3E50)),
-      body: Container(
-        decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.blueGrey[50]!, Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-        child: Center(
-          child: Card(
-            margin: EdgeInsets.all(20),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Column(mainAxisSize: MainAxisSize.min, children: [
-                Icon(Icons.family_restroom, size: 50, color: Color(0xFF2C3E50)),
-                SizedBox(height: 10),
-                Text("Quem esta usando?", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                SizedBox(height: 15),
-                DropdownButton<String>(
-                  value: nomeSelecionado,
-                  isExpanded: true,
-                  items: familia.map((f)=> DropdownMenuItem(value: f["nome"], child: Text(f["nome"]!))).toList(),
-                  onChanged: (v){ setState(()=> nomeSelecionado=v!); },
-                ),
-                SizedBox(height: 10),
-                TextField(controller: senhaCtrl, obscureText: true, decoration: InputDecoration(labelText: "Senha (1234)", border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)))),
-                SizedBox(height: 20),
-                Container(width: double.infinity, child: ElevatedButton(onPressed: entrar, style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF2C3E50), padding: EdgeInsets.all(15), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: Text("Entrar", style: TextStyle(color: Colors.white, fontSize: 18)))),
-                SizedBox(height: 10),
-                TextButton(onPressed: ()=> Navigator.pop(context), child: Text("Voltar")),
-              ]),
+      backgroundColor: Color(0xFF18191A),
+      appBar: AppBar(title: Text("Área Responsável"), backgroundColor: Color(0xFF232527)),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text("Quem está entrando?", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+          SizedBox(height: 16),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(color: Color(0xFF232527), borderRadius: BorderRadius.circular(8)),
+            child: DropdownButton<String>(
+              value: nomeSelecionado,
+              isExpanded: true,
+              dropdownColor: Color(0xFF232527),
+              underline: SizedBox(),
+              items: familia.map((f)=> DropdownMenuItem(value: f["nome"], child: Text(f["nome"]!))).toList(),
+              onChanged: (v)=> setState(()=> nomeSelecionado=v!),
             ),
           ),
-        ),
+          SizedBox(height: 20),
+          TextField(controller: senhaCtrl, obscureText: true, decoration: InputDecoration(labelText: "Senha (1234)", filled: true, fillColor: Color(0xFF232527), border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none)), style: TextStyle(color: Colors.white)),
+          SizedBox(height: 20),
+          SizedBox(width: double.infinity, height: 50, child: ElevatedButton(onPressed: entrar, style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFE22326)), child: Text("Entrar", style: TextStyle(fontWeight: FontWeight.bold)))),
+        ]),
       ),
     );
   }
 }
 
-// AREA DA ALICE - SO JOGAR
-class TelaAlice extends StatefulWidget {
+// ============ TELA ALICE - ROBLOX STYLE COM FOTO ============
+class TelaAliceRoblox extends StatefulWidget {
   @override
-  _TelaAliceState createState() => _TelaAliceState();
+  _TelaAliceRobloxState createState() => _TelaAliceRobloxState();
 }
-class _TelaAliceState extends State<TelaAlice> {
-  SharedPreferences? prefs;
+class _TelaAliceRobloxState extends State<TelaAliceRoblox> {
+  List<Map<String,dynamic>> tarefas = [];
   int robux = 0;
-  Map<String,bool> tarefas = {"Chegada":false,"Brincar":false,"Leitura":false,"Numeros":false};
-  Map<String,int> progresso = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
-  bool liberadoRoblox = false;
-  Map<String,bool> jogosComprados = {"Memoria":false,"Caca":false,"Turbo":false};
+  Map<String,int> progressos = {"memoria":0,"palavra":0,"blocos":0,"lojinha":0};
+  Map<String,bool> jogosComprados = {"memoria":true,"palavra":true,"blocos":false,"lojinha":false,"parkour":false,"obby":false};
+  final picker = ImagePicker();
 
   @override
   void initState(){ super.initState(); carregar(); }
 
   Future<void> carregar() async {
-    prefs = await SharedPreferences.getInstance();
+    SharedPreferences p = await SharedPreferences.getInstance();
     setState((){
-      robux = prefs!.getInt("robux") ?? 0;
-      tarefas["Chegada"] = prefs!.getBool("tarefa_Chegada") ?? false;
-      tarefas["Brincar"] = prefs!.getBool("tarefa_Brincar") ?? false;
-      tarefas["Leitura"] = prefs!.getBool("tarefa_Leitura") ?? false;
-      tarefas["Numeros"] = prefs!.getBool("tarefa_Numeros") ?? false;
-      progresso["Silabas"] = prefs!.getInt("prog_Silabas") ?? 0;
-      progresso["Palavra"] = prefs!.getInt("prog_Palavra") ?? 0;
-      progresso["Blocos"] = prefs!.getInt("prog_Blocos") ?? 0;
-      progresso["Lojinha"] = prefs!.getInt("prog_Lojinha") ?? 0;
-      liberadoRoblox = prefs!.getBool("liberadoRoblox") ?? false;
-      jogosComprados["Memoria"] = prefs!.getBool("compra_Memoria") ?? false;
-      jogosComprados["Caca"] = prefs!.getBool("compra_Caca") ?? false;
-      jogosComprados["Turbo"] = prefs!.getBool("compra_Turbo") ?? false;
+      robux = p.getInt("robux_alice") ?? 0;
+      progressos = {
+        "memoria": p.getInt("prog_memoria") ?? 0,
+        "palavra": p.getInt("prog_palavra") ?? 0,
+        "blocos": p.getInt("prog_blocos") ?? 0,
+        "lojinha": p.getInt("prog_lojinha") ?? 0,
+      };
+      String? tarefasJson = p.getString("tarefas_alice_v4");
+      if(tarefasJson!=null){
+        tarefas = List<Map<String,dynamic>>.from(jsonDecode(tarefasJson).map((e)=> Map<String,dynamic>.from(e)));
+      } else {
+        tarefas = [
+          {"titulo":"Arrumar a cama","feita":false,"hora":"","foto":""},
+          {"titulo":"Escovar os dentes","feita":false,"hora":"","foto":""},
+          {"titulo":"Guardar brinquedos","feita":false,"hora":"","foto":""},
+          {"titulo":"Dever de casa","feita":false,"hora":"","foto":""},
+        ];
+      }
+      jogosComprados["blocos"] = p.getBool("comp_blocos") ?? false;
+      jogosComprados["lojinha"] = p.getBool("comp_lojinha") ?? false;
+      jogosComprados["parkour"] = p.getBool("comp_parkour") ?? false;
+      jogosComprados["obby"] = p.getBool("comp_obby") ?? false;
     });
   }
 
-  bool jogoLiberado(String jogo){
-    if(jogo=="Silabas") return tarefas["Chegada"]==true;
-    if(jogo=="Palavra") return tarefas["Brincar"]==true;
-    if(jogo=="Blocos") return tarefas["Leitura"]==true;
-    if(jogo=="Lojinha") return tarefas["Numeros"]==true;
-    return true;
+  Future<void> salvar() async {
+    SharedPreferences p = await SharedPreferences.getInstance();
+    await p.setInt("robux_alice", robux);
+    await p.setString("tarefas_alice_v4", jsonEncode(tarefas));
+    await p.setInt("prog_memoria", progressos["memoria"]!);
+    await p.setInt("prog_palavra", progressos["palavra"]!);
+    await p.setInt("prog_blocos", progressos["blocos"]!);
+    await p.setInt("prog_lojinha", progressos["lojinha"]!);
+    await p.setBool("comp_blocos", jogosComprados["blocos"]!);
+    await p.setBool("comp_lojinha", jogosComprados["lojinha"]!);
+    await p.setBool("comp_parkour", jogosComprados["parkour"]!);
+    await p.setBool("comp_obby", jogosComprados["obby"]!);
   }
 
-  void completarQuestao(String jogo) async {
-    if((progresso[jogo] ?? 0) >= 20) return;
-    int novo = (progresso[jogo] ?? 0) + 1;
-    int novoRobux = robux + 2;
-    await prefs!.setInt("prog_"+jogo, novo);
-    await prefs!.setInt("robux", novoRobux);
-    setState((){
-      progresso[jogo]=novo;
-      robux=novoRobux;
-    });
-    if(novo==20){
-      int bonus = robux + 10;
-      await prefs!.setInt("robux", bonus);
-      setState(()=> robux=bonus);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Parabens pelo seu esforco! +10 Robux bonus em "+jogo), backgroundColor: Colors.green));
-    }
-    if((progresso["Silabas"]??0)>=20 && (progresso["Palavra"]??0)>=20 && (progresso["Blocos"]??0)>=20 && (progresso["Lojinha"]??0)>=20){
-      if(!liberadoRoblox){
-        int total = robux + 20;
-        await prefs!.setInt("robux", total);
-        await prefs!.setBool("liberadoRoblox", true);
+  Future<void> tirarFoto(int idx) async {
+    try{
+      final XFile? file = await picker.pickImage(source: ImageSource.camera, imageQuality: 60);
+      if(file==null) return;
+      final bytes = await file.readAsBytes();
+      final base64Img = base64Encode(bytes);
+      setState((){
+        tarefas[idx]["feita"]=true;
+        tarefas[idx]["hora"]= TimeOfDay.now().format(context);
+        tarefas[idx]["foto"]= base64Img;
+        robux+=5;
+      });
+      await salvar();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Foto salva! +5 Robux!"), backgroundColor: Colors.green));
+    }catch(e){
+      // Fallback galeria para WEB
+      try{
+        final XFile? file = await picker.pickImage(source: ImageSource.gallery, imageQuality: 60);
+        if(file==null) return;
+        final bytes = await file.readAsBytes();
+        final base64Img = base64Encode(bytes);
         setState((){
-          liberadoRoblox=true;
-          robux=total;
+          tarefas[idx]["feita"]=true;
+          tarefas[idx]["hora"]= TimeOfDay.now().format(context);
+          tarefas[idx]["foto"]= base64Img;
+          robux+=5;
         });
-        showDialog(context: context, builder: (_)=> AlertDialog(
-          title: Text("🎉 TUDO COMPLETO!"),
-          content: Text("Alice completou 20/20 nos 4 jogos hoje! Roblox liberado +20 Robux!"),
-          actions: [TextButton(onPressed: ()=> Navigator.pop(context), child: Text("OK"))],
-        ));
+        await salvar();
+      }catch(e2){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Erro ao tirar foto: $e2")));
       }
     }
   }
 
-  void abrirJogo(String nome){
-    if(!jogoLiberado(nome)){
-      String falta = "";
-      if(nome=="Silabas") falta="Chegada na escola - pecas pro responsavel tirar foto";
-      if(nome=="Palavra") falta="Brincar";
-      if(nome=="Blocos") falta="Leitura";
-      if(nome=="Lojinha") falta="Numeros";
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Bloqueado! Faca a tarefa "+falta+" com o responsavel")));
-      return;
+  void onAcerto(String jogo){
+    setState((){
+      progressos[jogo]= progressos[jogo]!+1;
+      robux+=2;
+      if(progressos[jogo]==20){ robux+=10; }
+    });
+    salvar();
+  }
+
+  bool get todasFotosFeitas => tarefas.where((t)=> t["feita"]==true).length >= tarefas.length;
+  int get totalFeito => progressos.values.reduce((a,b)=> a+b);
+  bool get liberaRoblox => totalFeito>=80 && todasFotosFeitas;
+
+  void comprarJogo(String id, int preco){
+    if(robux>=preco && jogosComprados[id]==false){
+      setState((){
+        robux-=preco;
+        jogosComprados[id]=true;
+      });
+      salvar();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Jogo comprado!"), backgroundColor: Colors.green));
+    } else if(jogosComprados[id]==true){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Você já tem esse jogo!")));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Robux insuficiente! Faça tarefas e jogos"), backgroundColor: Colors.red));
     }
-    if(nome=="Silabas") Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoSilabas(onAcerto: ()=> completarQuestao("Silabas"), progresso: progresso["Silabas"]??0))).then((_)=> carregar());
-    if(nome=="Palavra") Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoPalavra(onAcerto: ()=> completarQuestao("Palavra"), progresso: progresso["Palavra"]??0))).then((_)=> carregar());
-    if(nome=="Blocos") Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoBlocos(onAcerto: ()=> completarQuestao("Blocos"), progresso: progresso["Blocos"]??0))).then((_)=> carregar());
-    if(nome=="Lojinha") Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoLojinha(onAcerto: ()=> completarQuestao("Lojinha"), progresso: progresso["Lojinha"]??0))).then((_)=> carregar());
   }
 
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFFFF6B9D),
-        title: Row(children: [Text("Mundo da Alice"), SizedBox(width: 10), Container(padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), child: Text("💎 "+robux.toString(), style: TextStyle(color: Color(0xFFFF6B9D), fontWeight: FontWeight.bold)))]),
-        actions: [IconButton(icon: Icon(Icons.logout), onPressed: ()=> Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_)=> TelaEscolhaInicial()), (r)=> false))],
-      ),
-      body: Container(
-        decoration: BoxDecoration(gradient: LinearGradient(colors: [Color(0xFFFFE3EC), Colors.white], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            if(liberadoRoblox)
-              Container(width: double.infinity, padding: EdgeInsets.all(16), decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.green[400]!, Colors.green[600]!]), borderRadius: BorderRadius.circular(16)), child: Row(children: [Icon(Icons.check_circle, color: Colors.white, size: 30), SizedBox(width: 10), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text("ROBLOX LIBERADO HOJE!", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), Text("Voce fez tudo! +20 Robux", style: TextStyle(color: Colors.white70, fontSize: 12))]))])),
-            SizedBox(height: 15),
-            Text("🎯 MINHA MISSAO HOJE", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF2C3E50))),
-            SizedBox(height: 8),
-            Container(padding: EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)]), child: Text("Peca para o responsavel tirar foto das suas tarefas para liberar os jogos!", style: TextStyle(fontSize: 13))),
-            SizedBox(height: 15),
-            Row(children: [
-              Expanded(child: _statusTarefa("Chegada", "Escola", Icons.school, tarefas["Chegada"]??false)),
-              SizedBox(width: 8),
-              Expanded(child: _statusTarefa("Brincar", "Parque", Icons.sports_soccer, tarefas["Brincar"]??false)),
-            ]),
-            SizedBox(height: 8),
-            Row(children: [
-              Expanded(child: _statusTarefa("Leitura", "Livro", Icons.book, tarefas["Leitura"]??false)),
-              SizedBox(width: 8),
-              Expanded(child: _statusTarefa("Numeros", "Contas", Icons.calculate, tarefas["Numeros"]??false)),
-            ]),
-            SizedBox(height: 20),
-            Text("🎮 MEUS JOGOS - 20 por dia", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Color(0xFF2C3E50))),
-            SizedBox(height: 10),
-            _cardJogoAlice("Silabas", "Silabas Magicas", "CASA, BOLA, AGUA", Colors.orange, progresso["Silabas"]??0),
-            _cardJogoAlice("Palavra", "Palavra Escondida", "Adivinhe a palavra", Colors.blue, progresso["Palavra"]??0),
-            _cardJogoAlice("Blocos", "Contando Blocos", "Quantos blocos?", Colors.purple, progresso["Blocos"]??0),
-            _cardJogoAlice("Lojinha", "Lojinha da Alice", "Pagar na lojinha", Colors.green, progresso["Lojinha"]??0),
-            SizedBox(height: 20),
-            Text("🛍️ LOJINHA", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18)),
-            SizedBox(height: 8),
-            _cardLojaAlice("Memoria", "Jogo da Memoria", 50),
-            _cardLojaAlice("Caca", "Caca Palavras", 70),
-            _cardLojaAlice("Turbo", "Turbo Matematica", 100),
-            if(liberadoRoblox)
-              Container(width: double.infinity, margin: EdgeInsets.only(top: 15), child: ElevatedButton(onPressed: () async {
-                var uri = Uri.parse("https://www.roblox.com");
-                if(await canLaunchUrl(uri)) await launchUrl(uri);
-              }, style: ElevatedButton.styleFrom(backgroundColor: Colors.black, padding: EdgeInsets.all(16), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: Text("🎮 ABRIR ROBLOX - LIBERADO!", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
-            SizedBox(height: 20),
+      backgroundColor: Color(0xFF18191A),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(60),
+        child: Container(
+          color: Color(0xFF232527),
+          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top, left: 12, right: 12),
+          child: Row(children: [
+            IconButton(icon: Icon(Icons.arrow_back), onPressed: ()=> Navigator.pop(context)),
+            Container(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: Color(0xFFE22326), borderRadius: BorderRadius.circular(4)), child: Text("ALICE", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12))),
+            SizedBox(width: 8),
+            Text("Mundo da Alice", style: TextStyle(fontWeight: FontWeight.bold)),
+            Spacer(),
+            Container(padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6), decoration: BoxDecoration(color: Color(0xFF393B3D), borderRadius: BorderRadius.circular(20)), child: Row(children: [Icon(Icons.diamond, size: 16, color: Color(0xFF00A2FF)), SizedBox(width: 4), Text("$robux", style: TextStyle(fontWeight: FontWeight.bold))])),
           ]),
         ),
       ),
-    );
-  }
-
-  Widget _statusTarefa(String nome, String desc, IconData icone, bool feito){
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(color: feito? Colors.green[50] : Colors.grey[100], borderRadius: BorderRadius.circular(12), border: Border.all(color: feito? Colors.green : Colors.grey[300]!)),
-      child: Column(children: [
-        Icon(icone, color: feito? Colors.green : Colors.grey),
-        SizedBox(height: 4),
-        Text(nome, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-        Text(feito? "Liberado!" : "Bloqueado", style: TextStyle(fontSize: 10, color: feito? Colors.green : Colors.grey)),
-      ]),
-    );
-  }
-
-  Widget _cardJogoAlice(String id, String titulo, String desc, Color cor, int prog){
-    bool liberado = jogoLiberado(id);
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)]),
-      child: ListTile(
-        leading: Container(width: 50, height: 50, decoration: BoxDecoration(color: liberado? cor : Colors.grey[300], borderRadius: BorderRadius.circular(12)), child: Icon(liberado? Icons.play_arrow : Icons.lock, color: Colors.white, size: 30)),
-        title: Text(titulo, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-        subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(desc, style: TextStyle(fontSize: 11)),
-          SizedBox(height: 4),
-          Row(children: [Expanded(child: LinearProgressIndicator(value: prog/20, backgroundColor: Colors.grey[200], color: cor, minHeight: 6)), SizedBox(width: 8), Text(prog.toString()+"/20", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold))]),
-        ]),
-        trailing: liberado? Icon(Icons.arrow_forward_ios, size: 16) : null,
-        onTap: ()=> abrirJogo(id),
-      ),
-    );
-  }
-
-  Widget _cardLojaAlice(String id, String titulo, int preco){
-    bool comprado = jogosComprados[id]??false;
-    return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: comprado? Colors.green[200]! : Colors.orange[200]!)),
-      child: ListTile(
-        leading: Icon(comprado? Icons.check_circle : Icons.shopping_bag, color: comprado? Colors.green : Colors.orange),
-        title: Text(titulo, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-        subtitle: Text(comprado? "Comprado! Toque para jogar" : "Preco: "+preco.toString()+" 💎"),
-        trailing: comprado? Icon(Icons.play_arrow) : null,
-        onTap: (){},
-      ),
-    );
-  }
-}
-
-// AREA RESPONSAVEL
-class TelaResponsavel extends StatefulWidget {
-  final String usuario;
-  TelaResponsavel({required this.usuario});
-  @override
-  _TelaResponsavelState createState() => _TelaResponsavelState();
-}
-class _TelaResponsavelState extends State<TelaResponsavel> {
-  SharedPreferences? prefs;
-  int robux = 0;
-  Map<String,bool> tarefas = {"Chegada":false,"Brincar":false,"Leitura":false,"Numeros":false};
-  Map<String,String> fotosHora = {};
-  Map<String,int> progresso = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
-  String dataHoje = "";
-  bool liberadoRoblox = false;
-  Map<String,bool> jogosComprados = {"Memoria":false,"Caca":false,"Turbo":false};
-
-  @override
-  void initState(){ super.initState(); init(); }
-
-  Future<void> init() async {
-    prefs = await SharedPreferences.getInstance();
-    String hoje = DateTime.now().toIso8601String().substring(0,10);
-    dataHoje = hoje;
-    setState((){
-      robux = prefs!.getInt("robux") ?? 0;
-      tarefas["Chegada"] = prefs!.getBool("tarefa_Chegada") ?? false;
-      tarefas["Brincar"] = prefs!.getBool("tarefa_Brincar") ?? false;
-      tarefas["Leitura"] = prefs!.getBool("tarefa_Leitura") ?? false;
-      tarefas["Numeros"] = prefs!.getBool("tarefa_Numeros") ?? false;
-      fotosHora["Chegada"] = prefs!.getString("foto_Chegada") ?? "";
-      fotosHora["Brincar"] = prefs!.getString("foto_Brincar") ?? "";
-      fotosHora["Leitura"] = prefs!.getString("foto_Leitura") ?? "";
-      fotosHora["Numeros"] = prefs!.getString("foto_Numeros") ?? "";
-      liberadoRoblox = prefs!.getBool("liberadoRoblox") ?? false;
-      jogosComprados["Memoria"] = prefs!.getBool("compra_Memoria") ?? false;
-      jogosComprados["Caca"] = prefs!.getBool("compra_Caca") ?? false;
-      jogosComprados["Turbo"] = prefs!.getBool("compra_Turbo") ?? false;
-      String dataSalva = prefs!.getString("data_hoje") ?? "";
-      if(dataSalva != hoje){
-        progresso = {"Silabas":0,"Palavra":0,"Blocos":0,"Lojinha":0};
-        prefs!.setString("data_hoje", hoje);
-        prefs!.setInt("prog_Silabas", 0);
-        prefs!.setInt("prog_Palavra", 0);
-        prefs!.setInt("prog_Blocos", 0);
-        prefs!.setInt("prog_Lojinha", 0);
-      } else {
-        progresso["Silabas"] = prefs!.getInt("prog_Silabas") ?? 0;
-        progresso["Palavra"] = prefs!.getInt("prog_Palavra") ?? 0;
-        progresso["Blocos"] = prefs!.getInt("prog_Blocos") ?? 0;
-        progresso["Lojinha"] = prefs!.getInt("prog_Lojinha") ?? 0;
-      }
-    });
-  }
-
-  Future<void> tirarFoto(String tarefa) async {
-    final picker = ImagePicker();
-    final XFile? foto = await picker.pickImage(source: ImageSource.camera);
-    if(foto!=null){
-      String hora = TimeOfDay.now().format(context);
-      String agora = DateTime.now().toString().substring(0,16);
-      await prefs!.setBool("tarefa_"+tarefa, true);
-      await prefs!.setString("foto_"+tarefa, "Feito as "+hora+" - "+agora);
-      setState((){
-        tarefas[tarefa]=true;
-        fotosHora[tarefa]="Feito as "+hora;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(tarefa+" liberada!"), backgroundColor: Colors.green));
-    }
-  }
-
-  void resetarDia() async {
-    await prefs!.setBool("tarefa_Chegada", false);
-    await prefs!.setBool("tarefa_Brincar", false);
-    await prefs!.setBool("tarefa_Leitura", false);
-    await prefs!.setBool("tarefa_Numeros", false);
-    await prefs!.setBool("liberadoRoblox", false);
-    setState((){
-      tarefas = {"Chegada":false,"Brincar":false,"Leitura":false,"Numeros":false};
-      fotosHora = {};
-      liberadoRoblox=false;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Dia resetado!")));
-  }
-
-  @override
-  Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Area "+widget.usuario+" - R\$ "+robux.toString()),
-        backgroundColor: Color(0xFF2C3E50),
-        actions: [
-          IconButton(icon: Icon(Icons.refresh), onPressed: resetarDia),
-          IconButton(icon: Icon(Icons.logout), onPressed: ()=> Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_)=> TelaEscolhaInicial()), (r)=> false)),
-        ],
-      ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(12),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(padding: EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(12)), child: Row(children: [Icon(Icons.info, color: Colors.blue), SizedBox(width: 10), Expanded(child: Text("Tire foto das tarefas da Alice para liberar os jogos dela. Voce pode ver o progresso aqui.", style: TextStyle(fontSize: 13)))])),
+          // STATUS
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(color: Color(0xFF232527), borderRadius: BorderRadius.circular(10)),
+            child: Row(children: [
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text("TAREFAS COM FOTO", style: TextStyle(fontSize: 11, color: Colors.white54)), Text("${tarefas.where((t)=>t["feita"]==true).length}/${tarefas.length} feitas", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))])),
+              Container(width: 1, height: 30, color: Colors.white10),
+              SizedBox(width: 12),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text("JOGOS", style: TextStyle(fontSize: 11, color: Colors.white54)), Text("$totalFeito/80", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16))])),
+              Container(width: 1, height: 30, color: Colors.white10),
+              SizedBox(width: 12),
+              Column(children: [Text("ROBLOX", style: TextStyle(fontSize: 11, color: Colors.white54)), Icon(liberaRoblox? Icons.check_circle : Icons.lock, color: liberaRoblox? Colors.green : Colors.white24)]),
+            ]),
+          ),
           SizedBox(height: 16),
-          Text("📸 TAREFAS DO DIA", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
-          SizedBox(height: 10),
+          Text("📸 MINHAS TAREFAS - TIRE FOTO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          SizedBox(height: 8),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 1.1, crossAxisSpacing: 10, mainAxisSpacing: 10),
+            itemCount: tarefas.length,
+            itemBuilder: (ctx,i){
+              var t = tarefas[i];
+              bool feita = t["feita"];
+              return Container(
+                decoration: BoxDecoration(color: Color(0xFF232527), borderRadius: BorderRadius.circular(12), border: Border.all(color: feita? Colors.green : Colors.white10)),
+                child: Column(children: [
+                  Expanded(
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(color: Color(0xFF393B3D), borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
+                      child: feita && t["foto"]!="" ? ClipRRect(borderRadius: BorderRadius.vertical(top: Radius.circular(12)), child: Image.memory(base64Decode(t["foto"]), fit: BoxFit.cover)) : Center(child: Text(feita? "✅" : "📷", style: TextStyle(fontSize: 30))),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8),
+                    child: Column(children: [
+                      Text(t["titulo"], style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold), textAlign: TextAlign.center, maxLines: 2),
+                      SizedBox(height: 4),
+                      feita ? Text("Feito às ${t["hora"]}", style: TextStyle(fontSize: 10, color: Colors.green)) :
+                      SizedBox(width: double.infinity, height: 32, child: ElevatedButton(onPressed: ()=> tirarFoto(i), style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF00A2FF), padding: EdgeInsets.zero), child: Text("TIRAR FOTO", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)))),
+                    ]),
+                  ),
+                ]),
+              );
+            },
+          ),
+          SizedBox(height: 16),
+          Text("🎮 MEUS JOGOS - ESTILO ROBLOX", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          SizedBox(height: 8),
+          // JOGOS GRID
           GridView.count(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
@@ -487,282 +435,246 @@ class _TelaResponsavelState extends State<TelaResponsavel> {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             children: [
-              _cardTarefaResp("Chegada", "Chegada na escola", Icons.school, "Libera Silabas"),
-              _cardTarefaResp("Brincar", "Brincar no parque", Icons.sports_soccer, "Libera Palavra"),
-              _cardTarefaResp("Leitura", "Leitura do dia", Icons.book, "Libera Blocos"),
-              _cardTarefaResp("Numeros", "Tarefa de Numeros", Icons.calculate, "Libera Lojinha"),
+              _GameCardRoblox(titulo: "Memória", progresso: progressos["memoria"]!, liberado: tarefas.length>0 && tarefas[0]["feita"], preco: 0, comprado: jogosComprados["memoria"]!, cor: Colors.pink, onPlay: (){ if(tarefas[0]["feita"]) Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoMemoria(onAcerto: ()=> onAcerto("memoria"), progresso: progressos["memoria"]!))); }, onBuy: (){}),
+              _GameCardRoblox(titulo: "Palavra", progresso: progressos["palavra"]!, liberado: tarefas.length>1 && tarefas[1]["feita"], preco: 0, comprado: jogosComprados["palavra"]!, cor: Colors.blue, onPlay: (){ if(tarefas.length>1 && tarefas[1]["feita"]) Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoPalavra(onAcerto: ()=> onAcerto("palavra"), progresso: progressos["palavra"]!))); }, onBuy: (){}),
+              _GameCardRoblox(titulo: "Blocos", progresso: progressos["blocos"]!, liberado: tarefas.length>2 && tarefas[2]["feita"], preco: 70, comprado: jogosComprados["blocos"]!, cor: Colors.purple, onPlay: (){ if(jogosComprados["blocos"]==true) Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoBlocos(onAcerto: ()=> onAcerto("blocos"), progresso: progressos["blocos"]!))); }, onBuy: ()=> comprarJogo("blocos",70)),
+              _GameCardRoblox(titulo: "Lojinha", progresso: progressos["lojinha"]!, liberado: tarefas.length>3 && tarefas[3]["feita"], preco: 70, comprado: jogosComprados["lojinha"]!, cor: Colors.green, onPlay: (){ if(jogosComprados["lojinha"]==true) Navigator.push(context, MaterialPageRoute(builder: (_)=> JogoLojinha(onAcerto: ()=> onAcerto("lojinha"), progresso: progressos["lojinha"]!))); }, onBuy: ()=> comprarJogo("lojinha",70)),
+              _GameCardRoblox(titulo: "Parkour", progresso: 0, liberado: false, preco: 100, comprado: jogosComprados["parkour"]!, cor: Colors.orange, isNew: true, onPlay: (){}, onBuy: ()=> comprarJogo("parkour",100)),
+              _GameCardRoblox(titulo: "Obby", progresso: 0, liberado: false, preco: 120, comprado: jogosComprados["obby"]!, cor: Colors.red, isNew: true, onPlay: (){}, onBuy: ()=> comprarJogo("obby",120)),
             ],
           ),
-          SizedBox(height: 20),
-          Text("📊 PROGRESSO DA ALICE HOJE", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
-          SizedBox(height: 10),
-          _cardProgresso("Silabas Magicas", progresso["Silabas"]??0, Colors.orange),
-          _cardProgresso("Palavra Escondida", progresso["Palavra"]??0, Colors.blue),
-          _cardProgresso("Contando Blocos", progresso["Blocos"]??0, Colors.purple),
-          _cardProgresso("Lojinha da Alice", progresso["Lojinha"]??0, Colors.green),
-          SizedBox(height: 15),
-          Container(padding: EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey[300]!)), child: Column(children: [
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("Total Robux:"), Text("💎 "+robux.toString(), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18))]),
-            SizedBox(height: 8),
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text("Roblox liberado:"), Text(liberadoRoblox? "SIM ✅" : "NAO ❌", style: TextStyle(fontWeight: FontWeight.bold))]),
-          ])),
-          SizedBox(height: 20),
-          Container(width: double.infinity, child: ElevatedButton.icon(onPressed: ()=> Navigator.push(context, MaterialPageRoute(builder: (_)=> TelaAlice())), icon: Icon(Icons.play_arrow), label: Text("Ver como a Alice ve"), style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFFF6B9D), padding: EdgeInsets.all(14)))),
+          SizedBox(height: 16),
+          // BOTAO ROBLOX
+          SizedBox(
+            width: double.infinity,
+            height: 60,
+            child: ElevatedButton(
+              onPressed: liberaRoblox ? () async {
+                const url = "https://www.roblox.com/";
+                if(await canLaunchUrl(Uri.parse(url))){ await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication); }
+              } : null,
+              style: ElevatedButton.styleFrom(backgroundColor: liberaRoblox? Color(0xFFE22326) : Color(0xFF393B3D), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(liberaRoblox? Icons.play_arrow : Icons.lock, size: 28),
+                SizedBox(width: 8),
+                Text(liberaRoblox? "JOGAR ROBLOX AGORA - 20 MIN" : "COMPLETE ${80-totalFeito} JOGOS + ${tarefas.where((t)=>!t["feita"]).length} FOTOS PARA LIBERAR", style: TextStyle(fontWeight: FontWeight.w900, fontSize: liberaRoblox? 14 : 10)),
+              ]),
+            ),
+          ),
+          SizedBox(height: 30),
         ]),
       ),
     );
   }
-
-  Widget _cardTarefaResp(String id, String titulo, IconData icone, String libera){
-    bool feito = tarefas[id]??false;
-    return Container(
-      decoration: BoxDecoration(color: feito? Colors.green[50] : Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: feito? Colors.green : Colors.grey[300]!), boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-      child: Padding(
-        padding: EdgeInsets.all(12),
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Icon(icone, size: 32, color: feito? Colors.green : Colors.grey),
-          SizedBox(height: 6),
-          Text(titulo, textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-          SizedBox(height: 2),
-          Text(libera, style: TextStyle(fontSize: 10, color: Colors.grey[600])),
-          SizedBox(height: 6),
-          if(fotosHora[id]!=null && fotosHora[id]!="") Text(fotosHora[id]!, style: TextStyle(fontSize: 9, color: Colors.blue), textAlign: TextAlign.center),
-          SizedBox(height: 8),
-          Container(width: double.infinity, child: ElevatedButton(onPressed: ()=> tirarFoto(id), style: ElevatedButton.styleFrom(backgroundColor: feito? Colors.green : Color(0xFF2C3E50), padding: EdgeInsets.symmetric(vertical: 8), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), child: Text(feito? "Refazer" : "Tirar Foto", style: TextStyle(fontSize: 11, color: Colors.white)))),
-        ]),
-      ),
-    );
-  }
-
-  Widget _cardProgresso(String titulo, int prog, Color cor){
-    return Container(
-      margin: EdgeInsets.only(bottom: 8),
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey[200]!)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(titulo, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)), Text(prog.toString()+"/20", style: TextStyle(fontWeight: FontWeight.bold))]),
-        SizedBox(height: 6),
-        LinearProgressIndicator(value: prog/20, backgroundColor: Colors.grey[200], color: cor, minHeight: 8),
-      ]),
-    );
-  }
 }
 
-// JOGOS (mantidos iguais mas sem cortar)
-class JogoSilabas extends StatefulWidget {
-  final Function onAcerto;
-  final int progresso;
-  JogoSilabas({required this.onAcerto, required this.progresso});
-  @override
-  _JogoSilabasState createState() => _JogoSilabasState();
-}
-class _JogoSilabasState extends State<JogoSilabas> {
-  List<Map<String,dynamic>> perguntas = [
-    {"palavra":"CASA","silaba":"CA","opcoes":["CA","BO","DA"]},
-    {"palavra":"BOLA","silaba":"BO","opcoes":["CA","BO","LA"]},
-    {"palavra":"AGUA","silaba":"A","opcoes":["A","E","O"]},
-    {"palavra":"GATO","silaba":"GA","opcoes":["GA","TO","MI"]},
-    {"palavra":"PATO","silaba":"PA","opcoes":["PA","TI","GO"]},
-    {"palavra":"MALA","silaba":"MA","opcoes":["MA","LA","TA"]},
-    {"palavra":"FADA","silaba":"FA","opcoes":["FA","DA","BA"]},
-    {"palavra":"LUA","silaba":"LU","opcoes":["LU","A","BO"]},
-    {"palavra":"SOL","silaba":"SOL","opcoes":["SOL","LUA","MAR"]},
-    {"palavra":"MAR","silaba":"MAR","opcoes":["MAR","SOL","PAO"]},
-  ];
-  int idx = 0;
-  Random rnd = Random();
-
-  String removerAcento(String s){
-    s = s.replaceAll("Á","A").replaceAll("À","A").replaceAll("Ã","A").replaceAll("Â","A");
-    s = s.replaceAll("É","E").replaceAll("Ê","E");
-    s = s.replaceAll("Í","I");
-    s = s.replaceAll("Ó","O").replaceAll("Ô","O").replaceAll("Õ","O");
-    s = s.replaceAll("Ú","U");
-    return s;
-  }
-
-  void responder(String resp){
-    String correta = perguntas[idx]["silaba"];
-    if(removerAcento(resp.toUpperCase())==removerAcento(correta.toUpperCase())){
-      widget.onAcerto();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
-      setState(()=> idx = rnd.nextInt(perguntas.length));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Tente de novo! E "+correta), backgroundColor: Colors.red));
-    }
-  }
-
+class _GameCardRoblox extends StatelessWidget {
+  final String titulo;
+  final int progresso, preco;
+  final bool liberado, comprado;
+  final Color cor;
+  final bool isNew;
+  final VoidCallback onPlay, onBuy;
+  _GameCardRoblox({required this.titulo, required this.progresso, required this.liberado, required this.preco, required this.comprado, required this.cor, required this.onPlay, required this.onBuy, this.isNew=false});
   @override
   Widget build(BuildContext context){
-    var p = perguntas[idx];
-    return Scaffold(
-      appBar: AppBar(title: Text("Silabas Magicas "+widget.progresso.toString()+"/20"), backgroundColor: Colors.orange),
-      body: Column(children: [
-        LinearProgressIndicator(value: widget.progresso/20),
-        Container(color: Colors.yellow[200], width: double.infinity, padding: EdgeInsets.all(16), child: Text("Qual a primeira silaba de "+p["palavra"]+"?", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-        SizedBox(height: 30),
-        Text(p["palavra"], style: TextStyle(fontSize: 56, fontWeight: FontWeight.w900, color: Colors.orange[800])),
-        SizedBox(height: 30),
-        Wrap(alignment: WrapAlignment.center, children: (p["opcoes"] as List).map((op)=> Padding(padding: EdgeInsets.all(12), child: ElevatedButton(onPressed: ()=> responder(op), style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20), backgroundColor: Colors.orange, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: Text(op, style: TextStyle(fontSize: 28, color: Colors.white))))).toList()),
+    return Container(
+      decoration: BoxDecoration(color: Color(0xFF232527), borderRadius: BorderRadius.circular(12), border: Border.all(color: liberado? Colors.white24 : Colors.white10)),
+      child: Column(children: [
+        // IMAGEM JOGO
+        Expanded(
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(color: cor.withOpacity(0.3), borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
+            child: Stack(children: [
+              Center(child: Text(titulo[0], style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900, color: cor))),
+              if(isNew) Positioned(top: 6, left: 6, child: Container(padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(color: Colors.yellow, borderRadius: BorderRadius.circular(4)), child: Text("NOVO", style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.black)))),
+              if(!liberado && preco==0) Positioned.fill(child: Container(decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.vertical(top: Radius.circular(12))), child: Center(child: Icon(Icons.lock, color: Colors.white)))),
+            ]),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(8),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(titulo, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            SizedBox(height: 2),
+            if(preco==0) ...[
+              LinearProgressIndicator(value: progresso/20, backgroundColor: Colors.white10, color: cor),
+              SizedBox(height: 4),
+              Text("$progresso/20", style: TextStyle(fontSize: 11, color: Colors.white54)),
+              SizedBox(height: 6),
+              SizedBox(width: double.infinity, height: 32, child: ElevatedButton(onPressed: liberado? onPlay : null, style: ElevatedButton.styleFrom(backgroundColor: liberado? Colors.white : Color(0xFF393B3D), foregroundColor: liberado? Colors.black : Colors.white54, padding: EdgeInsets.zero), child: Text(liberado? "JOGAR" : "TIRE FOTO", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)))),
+            ] else ...[
+              Row(children: [Icon(Icons.diamond, size: 12, color: Color(0xFF00A2FF)), SizedBox(width: 4), Text("$preco", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold))]),
+              SizedBox(height: 6),
+              SizedBox(width: double.infinity, height: 32, child: ElevatedButton(onPressed: comprado? onPlay : onBuy, style: ElevatedButton.styleFrom(backgroundColor: comprado? Colors.green : Color(0xFF00A2FF), padding: EdgeInsets.zero), child: Text(comprado? (liberado? "JOGAR" : "TIRE FOTO") : "COMPRAR", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)))),
+            ],
+          ]),
+        ),
       ]),
     );
+  }
+}
+
+// RESPONSAVEL ROBLOX STYLE
+class TelaResponsavelRoblox extends StatefulWidget {
+  final String usuario;
+  TelaResponsavelRoblox({required this.usuario});
+  @override
+  _TelaResponsavelRobloxState createState() => _TelaResponsavelRobloxState();
+}
+class _TelaResponsavelRobloxState extends State<TelaResponsavelRoblox> {
+  List<Map<String,dynamic>> tarefas = [];
+  Map<String,int> progressos = {};
+  int robux=0;
+  @override
+  void initState(){ super.initState(); carregar(); }
+  Future<void> carregar() async {
+    SharedPreferences p = await SharedPreferences.getInstance();
+    setState((){
+      robux = p.getInt("robux_alice") ?? 0;
+      progressos = {
+        "memoria": p.getInt("prog_memoria") ?? 0,
+        "palavra": p.getInt("prog_palavra") ?? 0,
+        "blocos": p.getInt("prog_blocos") ?? 0,
+        "lojinha": p.getInt("prog_lojinha") ?? 0,
+      };
+      String? tJson = p.getString("tarefas_alice_v4");
+      if(tJson!=null) tarefas = List<Map<String,dynamic>>.from(jsonDecode(tJson).map((e)=> Map<String,dynamic>.from(e)));
+    });
+  }
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(
+      backgroundColor: Color(0xFF18191A),
+      appBar: AppBar(title: Text("Responsável: ${widget.usuario} - ${tarefas.where((t)=>t["feita"]==true).length}/${tarefas.length} fotos"), backgroundColor: Color(0xFF232527)),
+      body: ListView(
+        padding: EdgeInsets.all(12),
+        children: [
+          Container(padding: EdgeInsets.all(12), decoration: BoxDecoration(color: Color(0xFF232527), borderRadius: BorderRadius.circular(10)), child: Row(children: [Text("Robux da Alice: $robux 💎", style: TextStyle(fontWeight: FontWeight.bold)), Spacer(), Text("Progresso: ${progressos.values.fold(0,(a,b)=>a+b)}/80") ])),
+          SizedBox(height: 12),
+          ...tarefas.map((t)=> Container(margin: EdgeInsets.only(bottom: 10), padding: EdgeInsets.all(10), decoration: BoxDecoration(color: Color(0xFF232527), borderRadius: BorderRadius.circular(10)), child: Row(children: [
+            t["foto"]!="" ? ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.memory(base64Decode(t["foto"]), width: 70, height: 70, fit: BoxFit.cover)) : Container(width: 70, height: 70, decoration: BoxDecoration(color: Color(0xFF393B3D), borderRadius: BorderRadius.circular(8)), child: Icon(Icons.photo, color: Colors.white24)),
+            SizedBox(width: 10),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(t["titulo"], style: TextStyle(fontWeight: FontWeight.bold)), Text(t["feita"]? "Feito às ${t["hora"]}" : "Não feito", style: TextStyle(fontSize: 12, color: t["feita"]? Colors.green : Colors.white38))])),
+            Icon(t["feita"]? Icons.check_circle : Icons.pending, color: t["feita"]? Colors.green : Colors.white24),
+          ]))),
+          SizedBox(height: 20),
+          SizedBox(width: double.infinity, height: 50, child: ElevatedButton(onPressed: () async { SharedPreferences p = await SharedPreferences.getInstance(); await p.clear(); carregar(); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Dia resetado!"))); }, style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFE22326)), child: Text("RESETAR DIA"))),
+        ],
+      ),
+    );
+  }
+}
+
+// ============ JOGOS (iguais antes, mas com tema escuro) ============
+class JogoMemoria extends StatefulWidget {
+  final Function onAcerto; final int progresso;
+  JogoMemoria({required this.onAcerto, required this.progresso});
+  @override
+  _JogoMemoriaState createState() => _JogoMemoriaState();
+}
+class _JogoMemoriaState extends State<JogoMemoria> {
+  List<String> emojis = ["🐶","🐱","🐶","🐱","🐰","🐰","🦊","🦊"];
+  List<bool> revelado = List.filled(8,false);
+  List<int> selecionados = [];
+  @override
+  void initState(){ super.initState(); emojis.shuffle(); }
+  void clicar(int i){
+    if(revelado[i] || selecionados.length>=2) return;
+    setState(()=> selecionados.add(i));
+    if(selecionados.length==2){
+      Future.delayed(Duration(milliseconds: 800),(){
+        if(emojis[selecionados[0]]==emojis[selecionados[1]]){
+          setState((){
+            revelado[selecionados[0]]=true;
+            revelado[selecionados[1]]=true;
+            selecionados=[];
+            widget.onAcerto();
+            if(revelado.every((e)=>e)){ ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Memória completa! +10 bônus"), backgroundColor: Colors.green)); }
+          });
+        } else { setState(()=> selecionados=[]); }
+      });
+    }
+  }
+  @override
+  Widget build(BuildContext context){
+    return Scaffold(backgroundColor: Color(0xFF18191A), appBar: AppBar(title: Text("Memória ${widget.progresso}/20"), backgroundColor: Colors.pink), body: Column(children: [LinearProgressIndicator(value: widget.progresso/20), Expanded(child: GridView.count(crossAxisCount: 4, padding: EdgeInsets.all(20), children: List.generate(8, (i)=> GestureDetector(onTap: ()=> clicar(i), child: Container(margin: EdgeInsets.all(8), decoration: BoxDecoration(color: revelado[i] || selecionados.contains(i) ? Colors.pink[200] : Color(0xFF232527), borderRadius: BorderRadius.circular(12)), child: Center(child: Text(revelado[i] || selecionados.contains(i) ? emojis[i] : "❓", style: TextStyle(fontSize: 32))))))]));
   }
 }
 
 class JogoPalavra extends StatefulWidget {
-  final Function onAcerto;
-  final int progresso;
+  final Function onAcerto; final int progresso;
   JogoPalavra({required this.onAcerto, required this.progresso});
   @override
   _JogoPalavraState createState() => _JogoPalavraState();
 }
 class _JogoPalavraState extends State<JogoPalavra> {
   List<Map<String,String>> palavras = [
-    {"dica":"Animal que late","palavra":"CACHORRO"},
-    {"dica":"Fruta amarela","palavra":"BANANA"},
-    {"dica":"Cor do ceu","palavra":"AZUL"},
-    {"dica":"Voce mora aqui","palavra":"CASA"},
+    {"palavra":"CASA","dica":"Onde moramos"},
+    {"palavra":"BOLA","dica":"Brinquedo redondo"},
+    {"palavra":"GATO","dica":"Animal que mia"},
+    {"palavra":"SOL","dica":"Ilumina o dia"},
   ];
-  int idx = 0;
-  TextEditingController ctrl = TextEditingController();
-  Random rnd = Random();
-
+  int idx=0; TextEditingController ctrl=TextEditingController();
+  @override
+  void initState(){ super.initState(); idx=Random().nextInt(palavras.length); }
   void verificar(){
-    if(ctrl.text.toUpperCase().trim() == palavras[idx]["palavra"]){
+    if(ctrl.text.toUpperCase().trim()==palavras[idx]["palavra"]){
       widget.onAcerto();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
-      setState((){
-        idx = rnd.nextInt(palavras.length);
-        ctrl.clear();
-      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2"), backgroundColor: Colors.green));
+      setState((){ idx=Random().nextInt(palavras.length); ctrl.clear(); });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errou! Dica: "+palavras[idx]["dica"]!), backgroundColor: Colors.red));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Tente de novo"), backgroundColor: Colors.red));
     }
   }
-
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(title: Text("Palavra Escondida "+widget.progresso.toString()+"/20"), backgroundColor: Colors.blue),
-      body: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(children: [
-          LinearProgressIndicator(value: widget.progresso/20),
-          SizedBox(height: 20),
-          Container(width: double.infinity, padding: EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.blue[50], borderRadius: BorderRadius.circular(16)), child: Text("Dica: "+palavras[idx]["dica"]!, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
-          SizedBox(height: 30),
-          TextField(controller: ctrl, decoration: InputDecoration(labelText: "Digite a palavra", border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), textCapitalization: TextCapitalization.characters, style: TextStyle(fontSize: 20)),
-          SizedBox(height: 20),
-          Container(width: double.infinity, height: 60, child: ElevatedButton(onPressed: verificar, style: ElevatedButton.styleFrom(backgroundColor: Colors.blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: Text("Verificar", style: TextStyle(fontSize: 20)))),
-        ]),
-      ),
-    );
+    return Scaffold(backgroundColor: Color(0xFF18191A), appBar: AppBar(title: Text("Palavra ${widget.progresso}/20"), backgroundColor: Colors.blue), body: Padding(padding: EdgeInsets.all(20), child: Column(children: [LinearProgressIndicator(value: widget.progresso/20), SizedBox(height: 20), Container(width: double.infinity, padding: EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.blue[900], borderRadius: BorderRadius.circular(16)), child: Text("Dica: "+palavras[idx]["dica"]!, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white))), SizedBox(height: 30), TextField(controller: ctrl, decoration: InputDecoration(labelText: "Digite a palavra", filled: true, fillColor: Color(0xFF232527), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))), style: TextStyle(fontSize: 20, color: Colors.white)), SizedBox(height: 20), SizedBox(width: double.infinity, height: 60, child: ElevatedButton(onPressed: verificar, style: ElevatedButton.styleFrom(backgroundColor: Colors.blue), child: Text("Verificar", style: TextStyle(fontSize: 20))))])));
   }
 }
 
 class JogoBlocos extends StatefulWidget {
-  final Function onAcerto;
-  final int progresso;
+  final Function onAcerto; final int progresso;
   JogoBlocos({required this.onAcerto, required this.progresso});
   @override
   _JogoBlocosState createState() => _JogoBlocosState();
 }
 class _JogoBlocosState extends State<JogoBlocos> {
-  Random rnd = Random();
-  int quantidade = 3;
-  int corFixa = 0;
-  List<Color> cores = [Colors.red, Colors.blue, Colors.green, Colors.orange, Colors.purple];
-
+  Random rnd=Random(); int quantidade=3; int corFixa=0;
+  List<Color> cores=[Colors.red, Colors.blue, Colors.green, Colors.orange, Colors.purple];
   @override
   void initState(){ super.initState(); gerar(); }
-
-  void gerar(){ setState((){ quantidade = rnd.nextInt(10)+1; corFixa = rnd.nextInt(cores.length); }); }
-
+  void gerar(){ setState((){ quantidade=rnd.nextInt(10)+1; corFixa=rnd.nextInt(cores.length); }); }
   void responder(int resp){
-    if(resp==quantidade){
-      widget.onAcerto();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
-      gerar();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errou! Conte de novo"), backgroundColor: Colors.red));
-    }
+    if(resp==quantidade){ widget.onAcerto(); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2"), backgroundColor: Colors.green)); gerar(); }
+    else { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Errou!"), backgroundColor: Colors.red)); }
   }
-
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(title: Text("Contando Blocos "+widget.progresso.toString()+"/20"), backgroundColor: Colors.purple),
-      body: Column(children: [
-        LinearProgressIndicator(value: widget.progresso/20),
-        Container(color: Colors.yellow[200], width: double.infinity, padding: EdgeInsets.all(16), child: Text("Quantos blocos voce ve?", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
-        SizedBox(height: 10),
-        Expanded(child: Padding(padding: EdgeInsets.all(20), child: GridView.count(crossAxisCount: 5, children: List.generate(quantidade, (i)=> Container(margin: EdgeInsets.all(6), decoration: BoxDecoration(color: cores[corFixa], borderRadius: BorderRadius.circular(8))))))),
-        Padding(padding: EdgeInsets.all(16), child: Column(children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [1,2,3,4,5].map((n)=> ElevatedButton(onPressed: ()=> responder(n), style: ElevatedButton.styleFrom(padding: EdgeInsets.all(16)), child: Text(n.toString(), style: TextStyle(fontSize: 20)))).toList()),
-          SizedBox(height: 12),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [6,7,8,9,10].map((n)=> ElevatedButton(onPressed: ()=> responder(n), style: ElevatedButton.styleFrom(padding: EdgeInsets.all(16)), child: Text(n.toString(), style: TextStyle(fontSize: 20)))).toList()),
-          SizedBox(height: 20),
-        ])),
-      ]),
-    );
+    return Scaffold(backgroundColor: Color(0xFF18191A), appBar: AppBar(title: Text("Blocos ${widget.progresso}/20"), backgroundColor: Colors.purple), body: Column(children: [LinearProgressIndicator(value: widget.progresso/20), Container(color: Colors.purple[900], width: double.infinity, padding: EdgeInsets.all(16), child: Text("Quantos blocos?", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white))), Expanded(child: Padding(padding: EdgeInsets.all(20), child: GridView.count(crossAxisCount: 5, children: List.generate(quantidade, (i)=> Container(margin: EdgeInsets.all(6), decoration: BoxDecoration(color: cores[corFixa], borderRadius: BorderRadius.circular(8))))))), Padding(padding: EdgeInsets.all(16), child: Column(children: [Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [1,2,3,4,5].map((n)=> ElevatedButton(onPressed: ()=> responder(n), child: Text(n.toString()))).toList()), SizedBox(height: 12), Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [6,7,8,9,10].map((n)=> ElevatedButton(onPressed: ()=> responder(n), child: Text(n.toString()))).toList())]))]));
   }
 }
 
 class JogoLojinha extends StatefulWidget {
-  final Function onAcerto;
-  final int progresso;
+  final Function onAcerto; final int progresso;
   JogoLojinha({required this.onAcerto, required this.progresso});
   @override
   _JogoLojinhaState createState() => _JogoLojinhaState();
 }
 class _JogoLojinhaState extends State<JogoLojinha> {
-  Random rnd = Random();
-  int preco = 5;
-  int pago = 0;
-  List<int> notas = [1,2,5];
-
+  Random rnd=Random(); int preco=5; int pago=0;
   @override
   void initState(){ super.initState(); gerar(); }
-
-  void gerar(){ setState((){ preco = rnd.nextInt(10)+1; pago = 0; }); }
-
+  void gerar(){ setState((){ preco=rnd.nextInt(10)+1; pago=0; }); }
   void addNota(int v){ setState(()=> pago+=v); }
-
   void verificar(){
-    if(pago==preco){
-      widget.onAcerto();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2 Robux"), backgroundColor: Colors.green));
-      gerar();
-    } else if(pago>preco){
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Deu troco a mais! Tente de novo"), backgroundColor: Colors.red));
-      setState(()=> pago=0);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Falta dinheiro!"), backgroundColor: Colors.orange));
-    }
+    if(pago==preco){ widget.onAcerto(); ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Correto! +2"), backgroundColor: Colors.green)); gerar(); }
+    else if(pago>preco){ ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Deu troco a mais!"), backgroundColor: Colors.red)); setState(()=> pago=0); }
+    else { ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Falta!"), backgroundColor: Colors.orange)); }
   }
-
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-      appBar: AppBar(title: Text("Lojinha "+widget.progresso.toString()+"/20"), backgroundColor: Colors.green),
-      body: Padding(
-        padding: EdgeInsets.all(20),
-        child: Column(children: [
-          LinearProgressIndicator(value: widget.progresso/20),
-          SizedBox(height: 20),
-          Container(width: double.infinity, padding: EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.green[50], borderRadius: BorderRadius.circular(16)), child: Text("Preco: R\$ "+preco.toString()+" - Quanto pagar?", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
-          SizedBox(height: 30),
-          Text("Pago: R\$ "+pago.toString(), style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-          SizedBox(height: 20),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: notas.map((n)=> ElevatedButton(onPressed: ()=> addNota(n), style: ElevatedButton.styleFrom(padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16)), child: Text("R\$ "+n.toString(), style: TextStyle(fontSize: 18)))).toList()),
-          SizedBox(height: 30),
-          Row(children: [
-            Expanded(child: ElevatedButton(onPressed: verificar, style: ElevatedButton.styleFrom(backgroundColor: Colors.green, padding: EdgeInsets.all(18)), child: Text("Pagar", style: TextStyle(fontSize: 18)))),
-            SizedBox(width: 12),
-            Expanded(child: ElevatedButton(onPressed: ()=> setState(()=> pago=0), style: ElevatedButton.styleFrom(backgroundColor: Colors.grey, padding: EdgeInsets.all(18)), child: Text("Limpar", style: TextStyle(fontSize: 18)))),
-          ]),
-        ]),
-      ),
-    );
+    return Scaffold(backgroundColor: Color(0xFF18191A), appBar: AppBar(title: Text("Lojinha ${widget.progresso}/20"), backgroundColor: Colors.green), body: Padding(padding: EdgeInsets.all(20), child: Column(children: [LinearProgressIndicator(value: widget.progresso/20), SizedBox(height: 20), Container(width: double.infinity, padding: EdgeInsets.all(20), decoration: BoxDecoration(color: Colors.green[900], borderRadius: BorderRadius.circular(16)), child: Text("Preço: R\$ $preco - Quanto pagar?", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white))), SizedBox(height: 30), Text("Pago: R\$ $pago", style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)), SizedBox(height: 20), Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [1,2,5].map((n)=> ElevatedButton(onPressed: ()=> addNota(n), child: Text("R\$ $n"))).toList()), SizedBox(height: 30), Row(children: [Expanded(child: ElevatedButton(onPressed: verificar, style: ElevatedButton.styleFrom(backgroundColor: Colors.green, padding: EdgeInsets.all(18)), child: Text("Pagar"))), SizedBox(width: 12), Expanded(child: ElevatedButton(onPressed: ()=> setState(()=> pago=0), style: ElevatedButton.styleFrom(backgroundColor: Colors.grey, padding: EdgeInsets.all(18)), child: Text("Limpar")))] ) ])));
   }
 }
