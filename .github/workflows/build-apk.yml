@@ -16,15 +16,26 @@ jobs:
         with:
           channel: 'stable'
           flutter-version: '3.27.3'
-      - name: Limpar tudo e recriar Android
+      - name: Limpar e recriar
         run: |
           rm -rf android build pubspec.lock
           flutter clean
-          flutter create . --project-name controle_alice --platforms=android --no-pub
+          flutter create . --project-name controle_alice --platforms=android,web --no-pub
           flutter pub get
       - name: Compilar APK
         run: flutter build apk --release --no-tree-shake-icons
+      - name: Compilar WEB
+        run: flutter build web --release
       - uses: actions/upload-artifact@v4
         with:
           name: app-alice-release
           path: build/app/outputs/flutter-apk/app-release.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-alice-web
+          path: build/web
+      - name: Publicar no GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/web
