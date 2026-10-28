@@ -1,7 +1,7 @@
 name: controle_alice
-description: Mundo da Alice V3 Separado
+description: Mundo da Alice 【entity-Roblox¦canonical_name=ROBLOX】 Web V4
 publish_to: 'none'
-version: 1.0.90+90
+version: 1.0.92+92
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
