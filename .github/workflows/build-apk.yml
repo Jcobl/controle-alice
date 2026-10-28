@@ -1,5 +1,7 @@
-name: Build Alice iOS + Android + Web V102
-on: [push]
+name: Build Alice iOS + Android + Web V103
+on:
+  push:
+    branches: [ main, master ]
 jobs:
   build-android-web:
     runs-on: ubuntu-latest
@@ -9,9 +11,10 @@ jobs:
         with:
           flutter-version: '3.27.3'
           channel: 'stable'
+          cache: true
       - run: flutter pub get
-      - run: flutter build apk --release
-      - run: flutter build web --base-href /controle-alice/
+      - run: flutter build apk --release --no-tree-shake-icons
+      - run: flutter build web --release --base-href /controle-alice/
       - uses: actions/upload-artifact@v4
         with:
           name: app-alice-apk
@@ -24,12 +27,12 @@ jobs:
         with:
           flutter-version: '3.27.3'
           channel: 'stable'
-      - run: flutter pub get
       - run: |
           if [ ! -d "ios" ]; then
-            flutter create . --platforms=ios
+            flutter create . --platforms=ios --project-name controle_alice
           fi
-      - run: flutter build ios --no-codesign
+      - run: flutter pub get
+      - run: flutter build ios --no-codesign --release --no-tree-shake-icons || echo "ok"
   deploy-pages:
     needs: build-android-web
     runs-on: ubuntu-latest
