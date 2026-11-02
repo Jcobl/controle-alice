@@ -1,4 +1,4 @@
-name: Build Alice 1040 Gemini Seguro
+name: Build Alice Roblox 1040 Gemini 1GB
 
 on:
   push:
@@ -19,22 +19,22 @@ jobs:
           flutter-version: '3.22.0'
           channel: 'stable'
 
-      - name: Gera 1GB assets
+      - name: Gera 1GB assets para APK
         run: |
           mkdir -p assets/imagens assets/sons assets/videos assets/jogos assets/historias
           for i in $(seq 1 100); do
             FILE=assets/imagens/fundo_${i}.bin
             [ -f "$FILE" ] || dd if=/dev/urandom of=$FILE bs=1M count=10 status=none
           done
-          du -sh assets
+          echo "Gerado:" && du -sh assets && ls assets/imagens | wc -l
 
-      - name: Corrige projeto
+      - name: Corrige projeto Flutter
         run: |
           rm -rf android web
           flutter create . --platforms=android,web --project-name controle_alice
           flutter pub get
 
-      - name: Build APK com Gemini Key do Secret
+      - name: Build APK 1GB com Gemini Secret
         run: |
           flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
 
@@ -43,9 +43,9 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: app-alice-1GB-1040-Gemini
+          name: Alice-Roblox-1040-1GB-Gemini
           path: build/app/outputs/flutter-apk/app-release.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: app-alice-web-1040-Gemini
+          name: Alice-Web-Roblox-1040
           path: build/web
