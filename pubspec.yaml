@@ -1,26 +1,25 @@
-name: Build Alice 103 - Verde
-on: [push]
-jobs:
-  build-apk:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with: { distribution: 'temurin', java-version: '17' }
-      - uses: subosito/flutter-action@v2
-        with: { flutter-version: '3.22.0' }
-      - run: flutter pub get
-      - run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
-        with: { name: app-alice-release, path: build/app/outputs/flutter-apk/app-release.apk }
+name: controle_alice
+description: App educativo da Alice - rosa e roxo com rotina com foto, jogos evolutivos e lojinha Robux
+publish_to: 'none'
+version: 1.0.0+103
 
-  build-web:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
-        with: { flutter-version: '3.22.0' }
-      - run: flutter pub get
-      - run: flutter build web --release
-      - uses: actions/upload-artifact@v4
-        with: { name: app-alice-web, path: build/web }
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  camera: ^0.10.5+9
+  image_picker: ^1.0.7
+  shared_preferences: ^2.2.2
+  path_provider: ^2.1.2
+  flutter_tts: ^4.0.2
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
