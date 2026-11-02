@@ -1,4 +1,4 @@
-name: Build Alice VERDE FINAL COM INTERNET
+name: Build Alice VERDE FINAL
 
 on:
   push:
@@ -29,18 +29,25 @@ jobs:
           cp /tmp/pubspec.yaml.bak pubspec.yaml
           sed -i "s/ext.kotlin_version.*/ext.kotlin_version = '1.9.22'/" android/build.gradle || true
 
-      - name: Adiciona permissao de INTERNET e CAMERA
+      - name: Adiciona permissao INTERNET
         run: |
-          MANIFEST=android/app/src/main/AndroidManifest.xml
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CAMERA" />' $MANIFEST
-          cat $MANIFEST | grep uses-permission
-          echo "org.gradle.jvmargs=-Xmx4096m" >> android/gradle.properties
+          python3 -c "
+          import pathlib
+          p = pathlib.Path('android/app/src/main/AndroidManifest.xml')
+          t = p.read_text()
+          if 'android.permission.INTERNET' not in t:
+              t = t.replace('<application', '    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <application')
+              p.write_text(t)
+          print('Manifest ok')
+          "
+          cat android/app/src/main/AndroidManifest.xml | grep permission
+
+      - name: Configura Gradle 4GB
+        run: echo "org.gradle.jvmargs=-Xmx4096m" >> android/gradle.properties
 
       - name: Gera 1GB assets
         run: |
-          mkdir -p assets/imagens assets/sons assets/videos assets/jogos assets/historias
+          mkdir -p assets/imagens
           for i in $(seq 1 100); do
             FILE=assets/imagens/fundo_${i}.bin
             if [ ! -f "$FILE" ]; then
@@ -62,5 +69,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Alice-VERDE-FINAL-INTERNET-1GB
+          name: Alice-VERDE-FINAL-1GB
           path: build/app/outputs/flutter-apk/app-release.apk
