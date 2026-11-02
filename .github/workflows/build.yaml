@@ -1,4 +1,4 @@
-name: Build Alice 1040 1GB IA
+name: Build Alice 1040 Gemini Seguro
 
 on:
   push:
@@ -10,34 +10,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
-
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
 
-      - name: Gera 1GB de assets (1040 exercicios precisam de peso)
+      - name: Gera 1GB assets
         run: |
-          mkdir -p assets/jogos assets/historias assets/imagens assets/sons assets/videos
-          # Cria 100 arquivos de 10MB = 1GB - só se não existir ainda pra não demorar todo build
-          echo "Gerando assets para bater 1GB..."
+          mkdir -p assets/imagens assets/sons assets/videos assets/jogos assets/historias
           for i in $(seq 1 100); do
             FILE=assets/imagens/fundo_${i}.bin
-            if [ ! -f "$FILE" ]; then
-              dd if=/dev/urandom of=$FILE bs=1M count=10 status=none
-            fi
-          done
-          # Cria também áudios e vídeos dummy pequenos
-          for i in $(seq 1 20); do
-            [ -f assets/sons/historia_${i}.bin ] || dd if=/dev/urandom of=assets/sons/historia_${i}.bin bs=1M count=5 status=none
+            [ -f "$FILE" ] || dd if=/dev/urandom of=$FILE bs=1M count=10 status=none
           done
           du -sh assets
-          echo "Total assets: $(du -sh assets | cut -f1)"
 
       - name: Corrige projeto
         run: |
@@ -45,23 +34,18 @@ jobs:
           flutter create . --platforms=android,web --project-name controle_alice
           flutter pub get
 
-      - name: Build APK Release 1GB
-        run: flutter build apk --release --verbose
-
-      - name: Mostra tamanho do APK
+      - name: Build APK com Gemini Key do Secret
         run: |
-          ls -lh build/app/outputs/flutter-apk/app-release.apk
-          du -h build/app/outputs/flutter-apk/app-release.apk
+          flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
 
       - name: Build Web
-        run: flutter build web --release
+        run: flutter build web --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: app-alice-1GB-1040-IA
+          name: app-alice-1GB-1040-Gemini
           path: build/app/outputs/flutter-apk/app-release.apk
-
       - uses: actions/upload-artifact@v4
         with:
-          name: app-alice-web-1040
+          name: app-alice-web-1040-Gemini
           path: build/web
