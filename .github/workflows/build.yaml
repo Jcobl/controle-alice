@@ -19,53 +19,37 @@ jobs:
           flutter-version: '3.22.0'
           channel: 'stable'
 
-      - name: Restaura projeto sem apagar main
+      - name: Restaura sem apagar main
         run: |
-          cp lib/main.dart /tmp/main.dart.bak
-          cp pubspec.yaml /tmp/pubspec.yaml.bak
+          cp lib/main.dart /tmp/m.bak
+          cp pubspec.yaml /tmp/p.bak
           rm -rf android web
           flutter create . --platforms=android,web --project-name controle_alice --overwrite
-          cp /tmp/main.dart.bak lib/main.dart
-          cp /tmp/pubspec.yaml.bak pubspec.yaml
-          sed -i "s/ext.kotlin_version.*/ext.kotlin_version = '1.9.22'/" android/build.gradle || true
+          cp /tmp/m.bak lib/main.dart
+          cp /tmp/p.bak pubspec.yaml
 
-      - name: Adiciona permissao INTERNET
+      - name: Permissao internet
         run: |
-          python3 -c "
-          import pathlib
-          p = pathlib.Path('android/app/src/main/AndroidManifest.xml')
-          t = p.read_text()
-          if 'android.permission.INTERNET' not in t:
-              t = t.replace('<application', '    <uses-permission android:name="android.permission.INTERNET" />\n    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />\n    <uses-permission android:name="android.permission.CAMERA" />\n    <application')
-              p.write_text(t)
-          print('Manifest ok')
-          "
-          cat android/app/src/main/AndroidManifest.xml | grep permission
+          FILE=android/app/src/main/AndroidManifest.xml
+          if ! grep -q INTERNET $FILE; then
+            sed -i 's/<application/    <uses-permission android:name="android.permission.INTERNET" \/>\n    <application/' $FILE
+          fi
 
-      - name: Configura Gradle 4GB
+      - name: Gradle 4GB
         run: echo "org.gradle.jvmargs=-Xmx4096m" >> android/gradle.properties
 
-      - name: Gera 1GB assets
+      - name: Gera 1GB
         run: |
           mkdir -p assets/imagens
           for i in $(seq 1 100); do
-            FILE=assets/imagens/fundo_${i}.bin
-            if [ ! -f "$FILE" ]; then
-              dd if=/dev/urandom of=$FILE bs=1M count=10 status=none
-            fi
+            dd if=/dev/urandom of=assets/imagens/fundo_${i}.bin bs=1M count=10 status=none 2>/dev/null || true
           done
-          du -sh assets
 
       - name: Pub get
         run: flutter pub get
 
-      - name: Build APK 1GB com Gemini Secret
-        env:
-          GRADLE_OPTS: "-Xmx4096m"
-        run: flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
-
-      - name: Build Web
-        run: flutter build web --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+      - name: Build APK
+        run: flutter build apk --release
 
       - uses: actions/upload-artifact@v4
         with:
