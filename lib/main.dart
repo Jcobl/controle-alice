@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
 void main() => runApp(const AliceApp());
+
+// CHAVE VEM DO SECRET - NÃO COLA DIRETO NO GITHUB
+// No build usamos --dart-define=GEMINI_API_KEY=seu_secret
+const String GEMINI_API_KEY = String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
 
 class AliceApp extends StatelessWidget {
   const AliceApp({super.key});
@@ -12,22 +17,15 @@ class AliceApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Alice 1040 Exercícios 1GB',
+      title: 'Alice 1040 1GB IA',
       theme: ThemeData(useMaterial3: true, scaffoldBackgroundColor: const Color(0xFFF0F0FF), colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF4D8D))),
       home: const AliceHome(),
     );
   }
 }
 
-class Atividade {
-  final String id; final String pergunta; final List<String> opcoes; final String correta; final String dica;
-  Atividade(this.id, this.pergunta, this.opcoes, this.correta, this.dica);
-}
-
-class MensagemIA {
-  final String texto; final bool daAlice; final String? imagemPath;
-  MensagemIA(this.texto, this.daAlice, {this.imagemPath});
-}
+class Atividade { final String id; final String pergunta; final List<String> opcoes; final String correta; final String dica; Atividade(this.id, this.pergunta, this.opcoes, this.correta, this.dica); }
+class MensagemIA { final String texto; final bool daAlice; final String? imagemPath; MensagemIA(this.texto, this.daAlice, {this.imagemPath}); }
 
 class AliceHome extends StatefulWidget {
   const AliceHome({super.key});
@@ -41,12 +39,11 @@ class _AliceHomeState extends State<AliceHome> {
   final picker = ImagePicker();
   final perguntaCtrl = TextEditingController();
   List<MensagemIA> chatIA = [];
-
+  bool carregandoIA = false;
   Map<String, Set<String>> feitas = {'Português': {}, 'Matemática': {}, 'Leitura': {}, 'Escrita': {}};
   Map<String, int> nivelPorLicao = {'Português': 1, 'Matemática': 1, 'Leitura': 1, 'Escrita': 1};
 
   final Map<String, Map<int, List<Atividade>>> banco = {
-
     'Português': {
       1: [
         Atividade('P1-1', 'Junte: CA + SA = ?', ['CASA', 'CASO', 'CASA'], 'CASA', 'CA+SA'),
@@ -1206,12 +1203,7 @@ class _AliceHomeState extends State<AliceHome> {
 
   };
 
-  Atividade? get proxima {
-    var lista = banco[licaoAtual]?[nivelPorLicao[licaoAtual]] ?? [];
-    var f = feitas[licaoAtual] ?? {};
-    for (var a in lista) if (!f.contains(a.id)) return a;
-    return null;
-  }
+  Atividade? get proxima { var lista = banco[licaoAtual]?[nivelPorLicao[licaoAtual]] ?? []; var f = feitas[licaoAtual] ?? {}; for (var a in lista) if (!f.contains(a.id)) return a; return null; }
   int get prog => (feitas[licaoAtual] ?? {}).intersection((banco[licaoAtual]?[nivelPorLicao[licaoAtual]] ?? []).map((e) => e.id).toSet()).length;
   int get totalGeral => feitas.values.fold(0, (s, set) => s + set.length);
 
@@ -1223,10 +1215,7 @@ class _AliceHomeState extends State<AliceHome> {
       if (prog >= 20) {
         setState(() => nivelPorLicao[licaoAtual] = (nivelPorLicao[licaoAtual] ?? 1) + 1);
         await p.setInt('nivel_$licaoAtual', nivelPorLicao[licaoAtual]!);
-        if (nivelPorLicao[licaoAtual]! > 13) {
-          // terminou todos os 260 dessa lição
-        }
-        if (mounted) showDialog(context: context, builder: (_) => AlertDialog(title: Text('🎉 Nível ${nivelPorLicao[licaoAtual]! - 1} completo!'), content: Text('Você fez 20 de $licaoAtual sem repetir! Liberado nível ${nivelPorLicao[licaoAtual]}!\nTotal geral: $totalGeral/1040'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Continuar'))]));
+        if (mounted) showDialog(context: context, builder: (_) => AlertDialog(title: Text('🎉 Nível ${nivelPorLicao[licaoAtual]! - 1} completo!'), content: Text('20 sem repetir! Liberado nível ${nivelPorLicao[licaoAtual]}! Total $totalGeral/1040'), actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Continuar'))]));
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Quase! Dica: ${atv.dica}'), backgroundColor: Colors.orange));
@@ -1234,26 +1223,58 @@ class _AliceHomeState extends State<AliceHome> {
     setState(() {});
   }
 
+  Future<void> explicarComGemini({String? perguntaTexto, String? imagemPath}) async {
+    if (GEMINI_API_KEY.isEmpty) {
+      setState(() => chatIA.add(MensagemIA("⚠️ Chave não configurada no Secret. Vai em Settings > Secrets > Actions > GEMINI_API_KEY e cola sua chave.\n\nEnquanto isso vou explicar fofo:\nVamos contar juntas! Qual parte tá difícil? Você já fez $totalGeral/1040!", false)));
+      return;
+    }
+    setState(() => carregandoIA = true);
+    try {
+      final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: GEMINI_API_KEY);
+      String promptSistema = """
+Você é a Professora IA da Alice, 7 anos, fofa rosa roxa estilo Roblox.
+Explique o dever da foto passo a passo, sem dar resposta direta.
+Use sílabas: BO+LA=BOLA, CA+SA=CASA.
+Se for conta, conta com maçãs 🍎 e dedinhos.
+Curta, 4 passos com emoji, termina perguntando o que revisar.
+Ela fez $totalGeral/1040, nível ${nivelPorLicao[licaoAtual]} de $licaoAtual.
+""";
+      List<Content> conteudo;
+      if (imagemPath != null) {
+        final bytes = await File(imagemPath).readAsBytes();
+        conteudo = [Content.multi([TextPart("$promptSistema\nPergunta: ${perguntaTexto ?? 'Explique esse dever'}"), DataPart('image/jpeg', bytes)])];
+      } else {
+        conteudo = [Content.text("$promptSistema\nPergunta: ${perguntaTexto ?? 'Ajuda dever'}")];
+      }
+      final resposta = await model.generateContent(conteudo);
+      final texto = resposta.text ?? "Não consegui ver, tira outra foto mais nítida! 📸";
+      setState(() => chatIA.add(MensagemIA(texto, false)));
+    } catch (e) {
+      setState(() => chatIA.add(MensagemIA("Erro IA: $e\nVerifica sua chave no Secret!", false)));
+    } finally {
+      setState(() => carregandoIA = false);
+    }
+  }
+
   Future<void> tirarFotoDever() async {
     final XFile? img = await picker.pickImage(source: ImageSource.camera, imageQuality: 70);
     if (img != null) {
-      setState(() { chatIA.add(MensagemIA('Foto do meu dever 📸', true, imagemPath: img.path)); });
-      await Future.delayed(const Duration(seconds: 1));
-      String explicacao = "Oi Alice! 💖 Vi seu dever!\n\nVamos fazer juntas:\n1️⃣ O que você já sabe?\n2️⃣ Vamos lembrar do nível ${nivelPorLicao[licaoAtual]} de $licaoAtual\n3️⃣ Tenta ler a primeira linha\n4️⃣ Conta nos dedinhos se for conta\n\nMe diz qual parte tá difícil! ✨ Você já fez $totalGeral de 1040 exercícios!";
-      setState(() => chatIA.add(MensagemIA(explicacao, false)));
+      setState(() => chatIA.add(MensagemIA('Foto do meu dever 📸', true, imagemPath: img.path)));
+      await explicarComGemini(imagemPath: img.path, perguntaTexto: perguntaCtrl.text.isNotEmpty ? perguntaCtrl.text : null);
     }
   }
 
   void enviarPergunta() {
     if (perguntaCtrl.text.trim().isEmpty) return;
-    setState(() { chatIA.add(MensagemIA(perguntaCtrl.text, true)); perguntaCtrl.clear(); });
-    tirarFotoDever(); // reaproveita lógica de explicação
+    String t = perguntaCtrl.text;
+    setState(() { chatIA.add(MensagemIA(t, true)); perguntaCtrl.clear(); });
+    explicarComGemini(perguntaTexto: t);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: const Color(0xFF2A2A2A), foregroundColor: Colors.white, title: Text(aba == 'ia' ? 'IA Professora - $totalGeral/1040' : 'Alice $licaoAtual Nível ${nivelPorLicao[licaoAtual]} - $totalGeral/1040', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13)), actions: [IconButton(onPressed: () => setState(() => aba = aba == 'ia' ? 'licoes' : 'ia'), icon: Icon(aba == 'ia' ? Icons.school : Icons.smart_toy, color: const Color(0xFFFF4D8D)))]),
+      appBar: AppBar(backgroundColor: const Color(0xFF2A2A2A), foregroundColor: Colors.white, title: Text(aba == 'ia' ? 'IA Gemini - $totalGeral/1040' : 'Alice $licaoAtual Nv${nivelPorLicao[licaoAtual]} - $totalGeral/1040', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12)), actions: [IconButton(onPressed: () => setState(() => aba = aba == 'ia' ? 'licoes' : 'ia'), icon: Icon(aba == 'ia' ? Icons.school : Icons.smart_toy, color: const Color(0xFFFF4D8D)))]),
       body: aba == 'ia' ? _buildIA() : _buildLicoes(),
       bottomNavigationBar: aba == 'ia' ? null : Container(color: const Color(0xFF2A2A2A), padding: const EdgeInsets.all(6), child: Row(children: [_tab('Português', Icons.text_fields), _tab('Matemática', Icons.calculate), _tab('Leitura', Icons.menu_book), _tab('Escrita', Icons.edit), _tabIA()])),
     );
@@ -1262,25 +1283,20 @@ class _AliceHomeState extends State<AliceHome> {
   Widget _buildLicoes() {
     var atv = proxima;
     return Column(children: [
-      Container(padding: const EdgeInsets.all(10), color: Colors.white, child: Column(children: [Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Nível ${nivelPorLicao[licaoAtual]} - $licaoAtual (13 níveis)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)), Text('$prog/20', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF4D8D)))]), const SizedBox(height: 4), LinearProgressIndicator(value: prog / 20, backgroundColor: Colors.grey[300], color: const Color(0xFFFF4D8D), minHeight: 10), Text('${20 - prog} faltam - $totalGeral/1040 no total - sem repetir', style: const TextStyle(fontSize: 10, color: Colors.grey))])),
-      Expanded(child: atv == null ? Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [const Icon(Icons.emoji_events, size: 60, color: Color(0xFFFF4D8D)), Text('Nível ${nivelPorLicao[licaoAtual]} de $licaoAtual completo! 🎉'), Text('$totalGeral/1040 feitos'), ElevatedButton(onPressed: () => setState(() {}), child: const Text('Próximo nível'))])) : ListView(padding: const EdgeInsets.all(14), children: [Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFFF4D8D), width: 3)), child: Column(children: [Text(atv.id, style: const TextStyle(fontSize: 10, color: Colors.grey)), const SizedBox(height: 6), Text(atv.pergunta, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900), textAlign: TextAlign.center), Text('Dica: ${atv.dica}', style: const TextStyle(fontSize: 11, color: Colors.grey))])), const SizedBox(height: 14), ...atv.opcoes.map((op) => Padding(padding: const EdgeInsets.only(bottom: 10), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(vertical: 14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xFFFF4D8D), width: 2))), onPressed: () => responder(atv, op), child: Text(op, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)))))])),
+      Container(padding: const EdgeInsets.all(10), color: Colors.white, child: Column(children: [Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('Nível ${nivelPorLicao[licaoAtual]} - $licaoAtual (13 níveis = 260)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11)), Text('$prog/20', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF4D8D)))]), LinearProgressIndicator(value: prog / 20, backgroundColor: Colors.grey[300], color: const Color(0xFFFF4D8D), minHeight: 10), Text('${20 - prog} faltam - TOTAL $totalGeral/1040 - sem repetir', style: const TextStyle(fontSize: 10, color: Colors.grey))])),
+      Expanded(child: atv == null ? Center(child: Text('Nível completo! $totalGeral/1040')) : ListView(padding: const EdgeInsets.all(14), children: [Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFFF4D8D), width: 3)), child: Column(children: [Text(atv.id, style: const TextStyle(fontSize: 10, color: Colors.grey)), Text(atv.pergunta, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900), textAlign: TextAlign.center), Text('Dica: ${atv.dica}', style: const TextStyle(fontSize: 11, color: Colors.grey))])), const SizedBox(height: 14), ...atv.opcoes.map((op) => Padding(padding: const EdgeInsets.only(bottom: 10), child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.white, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: const BorderSide(color: Color(0xFFFF4D8D), width: 2))), onPressed: () => responder(atv, op), child: Text(op, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)))))])),
     ]);
   }
 
   Widget _buildIA() {
     return Column(children: [
-      Container(padding: const EdgeInsets.all(10), color: const Color(0xFFFFF0F8), child: Row(children: [Container(width: 40, height: 40, decoration: BoxDecoration(color: const Color(0xFFFF4D8D), borderRadius: BorderRadius.circular(20)), child: const Icon(Icons.smart_toy, color: Colors.white)), const SizedBox(width: 10), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Professora IA', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12)), Text('Foto do dever + explica - $totalGeral/1040 feitos', style: const TextStyle(fontSize: 10, color: Colors.grey))])), IconButton(onPressed: tirarFotoDever, icon: const Icon(Icons.camera_alt, color: Color(0xFFFF4D8D)))])),
+      Container(padding: const EdgeInsets.all(10), color: const Color(0xFFFFF0F8), child: Row(children: [Container(width: 40, height: 40, decoration: BoxDecoration(color: const Color(0xFFFF4D8D), borderRadius: BorderRadius.circular(20)), child: const Icon(Icons.smart_toy, color: Colors.white)), const SizedBox(width: 10), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Professora IA Gemini', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12)), Text('Foto do dever + explica - $totalGeral/1040', style: const TextStyle(fontSize: 10, color: Colors.grey))])), IconButton(onPressed: tirarFotoDever, icon: const Icon(Icons.camera_alt, color: Color(0xFFFF4D8D)))])),
+      if (carregandoIA) const LinearProgressIndicator(color: Color(0xFFFF4D8D)),
       Expanded(child: ListView.builder(padding: const EdgeInsets.all(10), itemCount: chatIA.length, itemBuilder: (_, i) { var m = chatIA[i]; return Align(alignment: m.daAlice ? Alignment.centerRight : Alignment.centerLeft, child: Container(margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.all(12), constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8), decoration: BoxDecoration(color: m.daAlice ? const Color(0xFFFF4D8D) : Colors.white, borderRadius: BorderRadius.circular(14)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [if (m.imagemPath != null) Padding(padding: const EdgeInsets.only(bottom: 6), child: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.file(File(m.imagemPath!), height: 120))), Text(m.texto, style: TextStyle(color: m.daAlice ? Colors.white : Colors.black87, fontSize: 13))]))); })),
-      Container(padding: const EdgeInsets.all(6), color: Colors.white, child: Row(children: [IconButton(onPressed: tirarFotoDever, icon: const Icon(Icons.camera_alt, color: Color(0xFFFF4D8D))), Expanded(child: TextField(controller: perguntaCtrl, decoration: InputDecoration(hintText: 'Escreva seu dever...', filled: true, fillColor: const Color(0xFFF0F0FF), border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none), contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8)))), CircleAvatar(backgroundColor: const Color(0xFFFF4D8D), child: IconButton(onPressed: enviarPergunta, icon: const Icon(Icons.send, color: Colors.white, size: 16)))])),
+      Container(padding: const EdgeInsets.all(6), color: Colors.white, child: Row(children: [IconButton(onPressed: tirarFotoDever, icon: const Icon(Icons.camera_alt, color: Color(0xFFFF4D8D))), Expanded(child: TextField(controller: perguntaCtrl, decoration: InputDecoration(hintText: 'Escreva seu dever...', filled: true, fillColor: const Color(0xFFF0F0FF), border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none)))), CircleAvatar(backgroundColor: const Color(0xFFFF4D8D), child: IconButton(onPressed: enviarPergunta, icon: const Icon(Icons.send, color: Colors.white, size: 16)))])),
     ]);
   }
 
-  Widget _tab(String nome, IconData icon) {
-    bool ativo = licaoAtual == nome && aba == 'licoes';
-    return Expanded(child: GestureDetector(onTap: () => setState(() { licaoAtual = nome; aba = 'licoes'; }), child: Container(padding: const EdgeInsets.symmetric(vertical: 6), margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(color: ativo ? const Color(0xFFFF4D8D) : Colors.grey[800], borderRadius: BorderRadius.circular(8)), child: Column(children: [Icon(icon, size: 16, color: Colors.white), Text(nome, style: const TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold), textAlign: TextAlign.center), Text('Nv${nivelPorLicao[nome]}', style: const TextStyle(color: Colors.white70, fontSize: 6))]))));
-  }
-  Widget _tabIA() {
-    bool ativo = aba == 'ia';
-    return Expanded(child: GestureDetector(onTap: () => setState(() => aba = 'ia'), child: Container(padding: const EdgeInsets.symmetric(vertical: 6), margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(color: ativo ? const Color(0xFF7C4DFF) : Colors.grey[800], borderRadius: BorderRadius.circular(8)), child: const Column(children: [Icon(Icons.smart_toy, size: 16, color: Colors.white), Text('IA', style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.w900)), Text('1040', style: TextStyle(color: Colors.white70, fontSize: 6))]))));
-  }
+  Widget _tab(String nome, IconData icon) { bool ativo = licaoAtual == nome && aba == 'licoes'; return Expanded(child: GestureDetector(onTap: () => setState(() { licaoAtual = nome; aba = 'licoes'; }), child: Container(padding: const EdgeInsets.symmetric(vertical: 6), margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(color: ativo ? const Color(0xFFFF4D8D) : Colors.grey[800], borderRadius: BorderRadius.circular(8)), child: Column(children: [Icon(icon, size: 16, color: Colors.white), Text(nome, style: const TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold), textAlign: TextAlign.center)])))); }
+  Widget _tabIA() { bool ativo = aba == 'ia'; return Expanded(child: GestureDetector(onTap: () => setState(() => aba = 'ia'), child: Container(padding: const EdgeInsets.symmetric(vertical: 6), margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(color: ativo ? const Color(0xFF7C4DFF) : Colors.grey[800], borderRadius: BorderRadius.circular(8)), child: const Column(children: [Icon(Icons.smart_toy, size: 16, color: Colors.white), Text('IA Gemini', style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.w900))])))); }
 }
