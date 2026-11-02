@@ -1,7 +1,7 @@
 name: controle_alice
-description: Alice 1040 exercicios + IA Gemini com camera
+description: Alice Roblox 1040 IA Gemini 1GB
 publish_to: 'none'
-version: 1.0.0+109
+version: 1.0.0+110
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
