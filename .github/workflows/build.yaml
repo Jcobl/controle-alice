@@ -16,7 +16,7 @@ jobs:
         with:
           flutter-version: '3.22.0'
       - run: rm -rf android web
-      - run: flutter create . --platforms=android,web
+      - run: flutter create . --platforms=android,web --project-name controle_alice --org com.jcobl.alice
       - run: flutter pub get
       - run: flutter build apk --release
       - run: flutter build web --release
