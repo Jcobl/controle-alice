@@ -16,8 +16,12 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
+      - name: Conserta Gradle antigo
+        run: |
+          rm -rf android
+          flutter create . --platforms=android,web --project-name controle_alice
       - run: flutter pub get
-      - run: flutter build apk --release
+      - run: flutter build apk --release --no-tree-shake-icons
       - uses: actions/upload-artifact@v4
         with:
           name: app-alice-release
@@ -30,9 +34,13 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.0'
+      - name: Conserta Web se faltar
+        run: |
+          rm -rf web
+          flutter create . --platforms=web --project-name controle_alice
       - run: flutter pub get
-      - run: flutter build web --release
+      - run: flutter build web --release --no-tree-shake-icons
       - uses: actions/upload-artifact@v4
         with:
           name: app-alice-web
-          path: build/
+          path: build/web
