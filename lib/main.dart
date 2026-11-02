@@ -125,33 +125,25 @@ class _RobloxHomeState extends State<RobloxHome> {
     for (int nv = 1; nv <= 13; nv++) {
       for (int i = 0; i < 20; i++) {
         var s = sil[(id + i) % sil.length];
-        var opP = [s[2], 'BALA', 'BOLO'];
-        opP.shuffle(Random(id * 3 + i));
         b['Português']![nv]!.add(Atividade(
             'P${nv}-$id',
             'Junte: ${s[0]} + ${s[1]} = ?',
-            opP,
+            [s[2], 'BALA', 'BOLO'],
             s[2],
             '${s[0]}+${s[1]}'));
         int a = (id % 10) + 1;
         int b2 = (i % 5) + 1;
-        var opM = ['${a + b2}', '${a + b2 + 1}', '${a + b2 + 2}'];
-        opM.shuffle(Random(id * 7 + i));
         b['Matemática']![nv]!.add(Atividade(
             'M${nv}-$id',
             '$a + $b2 = ?',
-            opM,
+            ['${a + b2}', '${a + b2 + 1}', '${a + b2 + 2}'],
             '${a + b2}',
             'Macas'));
         String frase = ["O SOL brilha", "A CASA e bonita", "A BOLA pula"][i % 3];
-        var opL = [frase, 'O SOL bonito', 'A BOLA azul'];
-        opL.shuffle(Random(id * 11 + i));
         b['Leitura']![nv]!.add(Atividade('L${nv}-$id', 'Leia: $frase',
-            opL, frase, frase));
-        var opE = [s[2], 'Eu amo ${s[2]}', 'CASA'];
-        opE.shuffle(Random(id * 13 + i));
+            [frase, 'O SOL bonito', 'A BOLA azul'], frase, frase));
         b['Escrita']![nv]!.add(Atividade(
-            'E${nv}-$id', 'Escreva ${s[2]}', opE, s[2], s[2]));
+            'E${nv}-$id', 'Escreva ${s[2]}', [s[2], 'Eu amo ${s[2]}', 'CASA'], s[2], s[2]));
         id++;
       }
     }
@@ -526,28 +518,32 @@ class _RobloxHomeState extends State<RobloxHome> {
                           color: roxoEscuro),
                       textAlign: TextAlign.center),
                   const SizedBox(height: 16),
-                  Row(
-                      children: atv.opcoes
-                          .map((op) => Expanded(
-                              child: Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 4),
-                                  child: GestureDetector(
-                                      onTap: () => responder(atv, op),
-                                      child: bloco(
-                                          cor: Colors.white,
-                                          child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 16),
-                                              child: Text(op,
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                      color: rosa,
-                                                      fontWeight:
-                                                          FontWeight.w900,
-                                                      fontSize: 18))))))))
-                          .toList())
+                  Builder(builder: (context) {
+                    var ops = List<String>.from(atv.opcoes);
+                    ops.shuffle(Random());
+                    return Row(
+                        children: ops
+                            .map((op) => Expanded(
+                                child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                    child: GestureDetector(
+                                        onTap: () => responder(atv, op),
+                                        child: bloco(
+                                            cor: Colors.white,
+                                            child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 16),
+                                                child: Text(op,
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        color: rosa,
+                                                        fontWeight:
+                                                            FontWeight.w900,
+                                                        fontSize: 18))))))))
+                            .toList());
+                  })
                 ])),
           const SizedBox(height: 12),
           GestureDetector(
@@ -854,3 +850,4 @@ class _RobloxHomeState extends State<RobloxHome> {
           ])),
     ]);
   }
+}
