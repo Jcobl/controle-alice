@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
+import 'dart:math';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 void main() => runApp(const AliceApp());
@@ -124,25 +125,33 @@ class _RobloxHomeState extends State<RobloxHome> {
     for (int nv = 1; nv <= 13; nv++) {
       for (int i = 0; i < 20; i++) {
         var s = sil[(id + i) % sil.length];
+        var opP = [s[2], 'BALA', 'BOLO'];
+        opP.shuffle(Random(id * 3 + i));
         b['Português']![nv]!.add(Atividade(
             'P${nv}-$id',
             'Junte: ${s[0]} + ${s[1]} = ?',
-            [s[2], 'BALA', 'BOLO'],
+            opP,
             s[2],
             '${s[0]}+${s[1]}'));
         int a = (id % 10) + 1;
         int b2 = (i % 5) + 1;
+        var opM = ['${a + b2}', '${a + b2 + 1}', '${a + b2 + 2}'];
+        opM.shuffle(Random(id * 7 + i));
         b['Matemática']![nv]!.add(Atividade(
             'M${nv}-$id',
             '$a + $b2 = ?',
-            ['${a + b2}', '${a + b2 + 1}', '${a + b2 + 2}'],
+            opM,
             '${a + b2}',
             'Macas'));
         String frase = ["O SOL brilha", "A CASA e bonita", "A BOLA pula"][i % 3];
+        var opL = [frase, 'O SOL bonito', 'A BOLA azul'];
+        opL.shuffle(Random(id * 11 + i));
         b['Leitura']![nv]!.add(Atividade('L${nv}-$id', 'Leia: $frase',
-            [frase, 'O SOL bonito', 'A BOLA azul'], frase, frase));
+            opL, frase, frase));
+        var opE = [s[2], 'Eu amo ${s[2]}', 'CASA'];
+        opE.shuffle(Random(id * 13 + i));
         b['Escrita']![nv]!.add(Atividade(
-            'E${nv}-$id', 'Escreva ${s[2]}', [s[2], 'Eu amo ${s[2]}', 'CASA'], s[2], s[2]));
+            'E${nv}-$id', 'Escreva ${s[2]}', opE, s[2], s[2]));
         id++;
       }
     }
@@ -845,4 +854,3 @@ class _RobloxHomeState extends State<RobloxHome> {
           ])),
     ]);
   }
-}
