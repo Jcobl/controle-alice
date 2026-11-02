@@ -1,13 +1,15 @@
 name: controle_alice
-description: App educativo da Alice - rosa e roxo
+description: Mundo da Alice - Rotina com foto, jogos evolutivos e lojinha Robux - rosa e roxo
 publish_to: 'none'
-version: 1.0.0+103
+version: 1.0.0+104
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.6
+  image_picker: ^1.0.7
+  shared_preferences: ^2.2.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
