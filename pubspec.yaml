@@ -1,7 +1,7 @@
 name: controle_alice
-description: Alice 1040 exercicios unicos + IA professora + 1GB assets
+description: Alice 1040 exercicios + IA Gemini com camera
 publish_to: 'none'
-version: 1.0.0+108
+version: 1.0.0+109
 environment:
   sdk: '>=3.0.0 <4.0.0'
 dependencies:
@@ -10,6 +10,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   image_picker: ^1.0.7
   shared_preferences: ^2.2.2
+  google_generative_ai: ^0.4.6
 flutter:
   uses-material-design: true
   assets:
