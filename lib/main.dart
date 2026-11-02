@@ -7,7 +7,7 @@ import 'dart:math';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 void main() => runApp(const AliceApp());
-const String GEMINI_API_KEY = String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
+const String BRILHO_ROSA = String.fromEnvironment('BRILHO_ROSA', defaultValue: '');
 
 class AliceApp extends StatelessWidget {
   const AliceApp({super.key});
@@ -195,16 +195,16 @@ class _RobloxHomeState extends State<RobloxHome> {
   }
 
   Future<void> explicarIA({String? txt, String? imgPath}) async {
-    if (GEMINI_API_KEY.isEmpty) {
+    if (BRILHO_ROSA.isEmpty) {
       setState(() => chatIA.add(MensagemIA(
-          'Chave nao configurada no Secret. Vai em Settings > Secrets > Actions > GEMINI_API_KEY. Vou explicar: 2 macas + 3 macas = 5',
+          'Chave nao configurada no Secret. Vai em Settings > Secrets > Actions > BRILHO_ROSA. Vou explicar: 2 macas + 3 macas = 5',
           false)));
       return;
     }
     setState(() => carregandoIA = true);
     try {
       final model =
-          GenerativeModel(model: 'gemini-1.5-flash', apiKey: GEMINI_API_KEY);
+          GenerativeModel(model: 'gemini-1.5-flash', apiKey: BRILHO_ROSA);
       String prompt =
           'Voce e IA Professora da Alice 7 anos Roblox rosa roxa. Explique passo a passo com macas, 3 passos curtos. Total $total/1040.';
       List<Content> c;
