@@ -1,0 +1,47 @@
+name: Build Alice 103 - Verde
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+      - name: Apaga android velho e recria com Kotlin 1.9.22
+        run: |
+          rm -rf android
+          flutter create . --platforms=android --project-name controle_alice --org com.jcobl.alice
+          # Flutter 3.22 usa settings.gradle, nao build.gradle
+          sed -i "s/org.jetbrains.kotlin.android.*$/org.jetbrains.kotlin.android\" version \"1.9.22\" apply false/" android/settings.gradle || true
+          sed -i "s/ext.kotlin_version = '.*'/ext.kotlin_version = '1.9.22'/" android/build.gradle || true
+          cat android/settings.gradle | grep kotlin || true
+          cat android/build.gradle | grep kotlin || true
+      - run: flutter pub get
+      - run: flutter build apk --release --no-tree-shake-icons
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-alice-release
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+      - run: flutter pub get
+      - run: flutter build web --release --no-tree-shake-icons
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-alice-web
+          path: build/web
